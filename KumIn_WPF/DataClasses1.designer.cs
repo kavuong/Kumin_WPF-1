@@ -75,8 +75,6 @@ namespace KumIn_WPF
 	public partial class FStudentTable
 	{
 		
-		private System.Guid _StudentGUID;
-		
 		private string _LastName;
 		
 		private string _FirstName;
@@ -95,22 +93,6 @@ namespace KumIn_WPF
 		
 		public FStudentTable()
 		{
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_StudentGUID", DbType="UniqueIdentifier NOT NULL")]
-		public System.Guid StudentGUID
-		{
-			get
-			{
-				return this._StudentGUID;
-			}
-			set
-			{
-				if ((this._StudentGUID != value))
-				{
-					this._StudentGUID = value;
-				}
-			}
 		}
 		
 		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LastName", DbType="NVarChar(30) NOT NULL", CanBeNull=false)]
