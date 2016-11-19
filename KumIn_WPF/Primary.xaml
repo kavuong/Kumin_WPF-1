@@ -21,7 +21,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid Name="StudentCollection">
         <Image x:Name="image" HorizontalAlignment="Left" Height="125" VerticalAlignment="Top" Width="215" Source="KuminFull.png" Margin="10,10,0,0"/>
             <Button x:Name="btnSignIn" Content="Sign In" HorizontalAlignment="Left" Margin="878,21,0,0" VerticalAlignment="Top" Width="86" Height="25" FontFamily="Lucida Sans" FontSize="14" BorderThickness="0" Click="btnSignIn_Click"/>
             <Button x:Name="btnSignOut" Content="Sign Out" HorizontalAlignment="Left" Margin="878,75,0,0" VerticalAlignment="Top" Width="86" Height="25" BorderThickness="0" FontFamily="Lucida Sans" FontSize="14" RenderTransformOrigin="0.519,-2.961"/>
@@ -30,7 +30,7 @@
             <Label x:Name="lblTime" HorizontalContentAlignment="Center" Content="Current Date and Time" HorizontalAlignment="Left" Margin="204,21,0,0" VerticalAlignment="Top" Width="348" FontFamily="Lucida Sans" FontSize="14"/>
             <Button x:Name="btnAddNewStudent" Content="Add New Student" HorizontalAlignment="Left" Margin="287,58,0,0" VerticalAlignment="Top" Width="182" Height="25" FontFamily="Lucida Sans" FontSize="14" Padding="0" BorderThickness="0" Click="btnAddNewStudent_Click"/>
 
-        <DataGrid x:Name="dgdListing" Background="Transparent" CanUserAddRows="False" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top" Height="274" Width="972" BorderThickness="0" AutoGenerateColumns="False">
+        <DataGrid x:Name="dgdListing" Background="Transparent" CanUserAddRows="False" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top" Height="274" Width="972" BorderThickness="0" AutoGenerateColumns="False" SelectionChanged="dgdListing_SelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding FirstName}"  ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding LastName}" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Name" IsReadOnly="True"/>
@@ -39,7 +39,13 @@
                 <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Day"/>
                 <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Assignments Completed"/>
                 <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="Acknowledge"/>
-                <DataGridCheckBoxColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="Out Email"/>
+                <DataGridTemplateColumn Header="Out Email">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox x:Name="checkboxinstance"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="btnDeleteStudent" Content="Delete Student" HorizontalAlignment="Left" Margin="287,105,0,0" VerticalAlignment="Top" Width="182" Height="25" FontFamily="Lucida Sans" FontSize="14" BorderThickness="0" Click="button_Click"/>
