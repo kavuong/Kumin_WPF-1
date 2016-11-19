@@ -2,7 +2,6 @@
   <Connection Mode="AppSettings" ConnectionString="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Kumin;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True" SettingsObjectName="KumIn_WPF.Properties.Settings" SettingsPropertyName="KuminConnectionString" Provider="System.Data.SqlClient" />
   <Table Name="dbo.FStudentTable" Member="FStudentTables">
     <Type Name="FStudentTable">
-      <Column Name="StudentGUID" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
       <Column Name="LastName" Type="System.String" DbType="NVarChar(30) NOT NULL" CanBeNull="false" />
       <Column Name="FirstName" Type="System.String" DbType="NVarChar(30) NOT NULL" CanBeNull="false" />
       <Column Name="Barcode" Type="System.String" DbType="VarChar(200)" CanBeNull="true" />

@@ -95,6 +95,7 @@ namespace KumIn_WPF
             dummyRow["FirstName"] = user.FirstName;
             dummyRow["LastName"] = user.LastName;
             dummyRow["InTime"] = DateTime.Now.ToString("t");
+            dummyRow["Duration"] = "00:00:00";
 
 
             dgdListing.ItemsSource = dummyTable.DefaultView;
