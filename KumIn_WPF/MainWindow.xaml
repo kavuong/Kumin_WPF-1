@@ -1,0 +1,14 @@
+﻿<Window x:Class="KumIn_WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KumIn_WPF"
+        mc:Ignorable="d"
+        Title="SplashScreen" Height="350" Width="525">
+    <Grid>
+        <Image x:Name="image" HorizontalAlignment="Center" Height="100" VerticalAlignment="Top" Width="200" Margin="150,28,150,0" Source="KuminFull.png"/>
+        <Label x:Name="label" Content="Kumon Student Tracker" HorizontalAlignment="Center" Margin="10,102,0,0" VerticalAlignment="Top" FontFamily="Lucida Sans" FontSize="24"/>
+        <Button x:Name="button" Content="Enter" HorizontalAlignment="Center" Margin="0,188,0,0" VerticalAlignment="Top" Width="100" Height="40" FontFamily="Lucida Sans" FontSize="20" BorderThickness="0" Click="button_Click"/>
+    </Grid>
+</Window>
