@@ -10,7 +10,8 @@
         <local:YellowConverter x:Key="yconv" />
         <local:RedConverter x:Key="rconv" />
         <Style TargetType="DataGridRow">
-            <Style.Triggers>
+            <Setter Property="Background" Value="Transparent" />
+                <Style.Triggers>
                 <DataTrigger Binding="{Binding Duration, Converter={StaticResource rconv}, ConverterParameter=50}" Value="True">
                     <Setter Property="Background" Value="Red" />
                     <Setter Property="Foreground" Value="White" />
