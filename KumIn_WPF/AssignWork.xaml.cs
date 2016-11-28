@@ -19,6 +19,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Printing;
 
 namespace KumIn_WPF
 {
@@ -86,6 +87,7 @@ namespace KumIn_WPF
         private void btnPrintRecord_Click(object sender, RoutedEventArgs e)
         {
             writeData(updateData());
+            print();
         }
 
         private void txtBarcode_KeyDown(object sender, KeyEventArgs e)
@@ -152,7 +154,7 @@ namespace KumIn_WPF
 
                             if (row[0].ToString() == txtBarcode.Text && row[1].ToString() == Subject)
                             {
-                                range = "Test!A" + rowNum.ToString() + ":" + "AA" + rowNum.ToString();
+                                range = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
                                 found = true;
                                 break;
                             }
@@ -275,7 +277,7 @@ namespace KumIn_WPF
 
                     if (row[0].ToString() == barcode && row[1].ToString() == Subject)
                     {
-                        range = "Test!A" + rowNum.ToString() + ":" + "AA" + rowNum.ToString();
+                        range = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
                         break;
                     }
                     else
@@ -423,6 +425,117 @@ namespace KumIn_WPF
                 MessageBox.Show(ex.Message);
             }
             return dateAssign;
+        }
+
+        private void print()
+        {
+            
+
+
+
+            System.Windows.Controls.PrintDialog Printdlg = new System.Windows.Controls.PrintDialog();
+            Printdlg.PrintTicket.PageMediaSize = new PageMediaSize(408, 528);
+
+            double width = 408;
+            double height = 528;
+
+            // Create a FlowDocument dynamically.
+            FlowDocument doc = CreateFlowDocument(width, height);
+            doc.Name = "FlowDoc";
+
+            // Create IDocumentPaginatorSource from FlowDocument
+            IDocumentPaginatorSource idpSource = doc;
+
+            // Call PrintDocument method to send document to printer
+            Printdlg.PrintDocument(idpSource.DocumentPaginator, "Hello WPF Printing.");
+
+
+
+        }
+
+        private FlowDocument CreateFlowDocument(double pageWidth, double pageHeight)
+        {
+            // Create a FlowDocument
+            FlowDocument doc = new FlowDocument();
+            doc.PageWidth = pageWidth;
+            doc.PageHeight = pageHeight;
+            doc.ColumnWidth = pageWidth;
+
+            // Create a Section
+            Section sec = new Section();
+
+            // Create first Paragraph
+            Paragraph p1 = new Paragraph();
+            Paragraph p2 = new Paragraph();
+            // Create and add a new Bold, Italic and Underline
+            Bold bld = new Bold();
+            Bold bld2 = new Bold();
+            bld.Inlines.Add(new Run(lblName.Content.ToString()));
+            bld2.Inlines.Add(new Run(lblSubjectBig.Content.ToString() + "\t" + lblDateRange.Content.ToString()));
+
+
+            // Add Bold, Italic, Underline to Paragraph
+            p1.FontFamily = new FontFamily("Lucida Sans");
+            p1.FontSize = 25.0;
+            p1.TextAlignment = TextAlignment.Center;
+            p1.Inlines.Add(bld);
+
+
+            p2.FontFamily = new FontFamily("Lucida Sans");
+            p2.FontSize = 15.0;
+            p2.TextAlignment = TextAlignment.Center;
+            p2.Inlines.Add(bld2);
+
+            // Add Paragraph to Section
+            sec.Blocks.Add(p1);
+            sec.Blocks.Add(p2);
+
+            // Add Section to FlowDocument
+            doc.Blocks.Add(sec);
+
+            var table = new Table();
+            var rowGroup = new TableRowGroup();
+            table.RowGroups.Add(rowGroup);
+            var header = new TableRow();
+            rowGroup.Rows.Add(header);
+
+            int i = 0;
+            foreach (DataColumn column in dt.Columns)
+            {
+                
+                string[] headers = new string[] { "#", "Assigned", "Completed", "Level", "Pages" };
+                int[] columnWidths = new int[] { 30, 75, 100, 90, 100 };
+                var tableColumn = new TableColumn();
+                //configure width and such
+                tableColumn.Width = new GridLength(columnWidths[i]);
+                table.Columns.Add(tableColumn);
+                var cell = new TableCell(new Paragraph(new Run(headers[i])));
+                cell.FontFamily = new FontFamily("Lucida Sans");
+                cell.FontSize = 12.0;
+                cell.FontWeight = FontWeights.DemiBold;
+                header.Cells.Add(cell);
+                i++;
+            }
+
+            foreach (DataRow row in dt.Rows)
+            {
+                var tableRow = new TableRow();
+                rowGroup.Rows.Add(tableRow);
+
+                foreach (DataColumn column in dt.Columns)
+                {
+                    var value = row[column].ToString();//mayby some formatting is in order
+                    var cell = new TableCell(new Paragraph(new Run(value)));
+                    cell.LineHeight = pageHeight / 25;
+                    cell.FontFamily = new FontFamily("Lucida Sans");
+                    cell.FontSize = 12.0;
+                    tableRow.Cells.Add(cell);
+                }
+            }
+
+            doc.Blocks.Add(table);
+
+            return doc;
         }
 
         private void txtLevel_TextChanged(object sender, TextChangedEventArgs e)
