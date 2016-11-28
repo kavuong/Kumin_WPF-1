@@ -59,18 +59,6 @@ namespace KumIn_WPF
 
         }
 
-        private void btnAddNewStudent_Click(object sender, RoutedEventArgs e)
-        {
-            AddStudent myAddStudent = new AddStudent();
-            myAddStudent.Show();
-        }
-
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            DeleteStudent myDeleteStudent = new DeleteStudent();
-            myDeleteStudent.Show();
-        }
-
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
         {
             DataRow dummyRow = dummyTable.NewRow();
@@ -91,12 +79,18 @@ namespace KumIn_WPF
             {
                 dummyTable.Columns.Add("Duration");
             }
+            /*
             DataClasses1DataContext db = new DataClasses1DataContext();
             var user = (from u in db.FStudentTables
                         where u.Barcode == txtSignIn.Text
                         select u).FirstOrDefault();
             dummyRow["FirstName"] = user.FirstName;
             dummyRow["LastName"] = user.LastName;
+            dummyRow["InTime"] = DateTime.Now.ToString("t");
+            dummyRow["Duration"] = "00:00:00";
+            */
+            dummyRow["FirstName"] = "Srinath";
+            dummyRow["LastName"] = "Nandakumar";
             dummyRow["InTime"] = DateTime.Now.ToString("t");
             dummyRow["Duration"] = "00:00:00";
 
@@ -130,8 +124,8 @@ namespace KumIn_WPF
                 DataClasses1DataContext db = new DataClasses1DataContext();
 
                 DataRowView drv = (DataRowView) dgdListing.SelectedItem;
-                String firstName = (drv["FirstName"]).ToString();
-                String lastName = (drv["LastName"]).ToString();
+                string firstName = (drv["FirstName"]).ToString();
+                string lastName = (drv["LastName"]).ToString();
                 var user = (from u in db.FStudentTables
                             where u.FirstName == firstName && u.LastName == lastName
                             select u).FirstOrDefault();
@@ -147,11 +141,11 @@ namespace KumIn_WPF
                 SmtpServer.EnableSsl = true;
 
                 SmtpServer.Send(mail);
-                MessageBox.Show("HW Email Sent");
+                MessageBox.Show("HW Email Sent", "Success");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                MessageBox.Show(ex.ToString(), "Error");
             }
         }
 
@@ -163,11 +157,11 @@ namespace KumIn_WPF
                 MailMessage mail2 = new MailMessage();
                 SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
                 DataClasses1DataContext db = new DataClasses1DataContext();
-                String carrierString1 = "";
-                String carrierString2 = "";
+                string carrierString1 = "";
+                string carrierString2 = "";
                 DataRowView drv = (DataRowView)dgdListing.SelectedItem;
-                String firstName = (drv["FirstName"]).ToString();
-                String lastName = (drv["LastName"]).ToString();
+                string firstName = (drv["FirstName"]).ToString();
+                string lastName = (drv["LastName"]).ToString();
                 var user = (from u in db.FStudentTables
                             where u.FirstName == firstName && u.LastName == lastName
                             select u).FirstOrDefault();
@@ -224,15 +218,19 @@ namespace KumIn_WPF
                 SmtpServer.EnableSsl = true;
                 SmtpServer.Send(mail2);
 
-                MessageBox.Show("Text(s) sent");
+                MessageBox.Show("Text(s) sent","Success");
                 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                MessageBox.Show(ex.ToString(), "Error");
             }
         }
 
-        
+        private void btnAddNewStudent_Click(object sender, RoutedEventArgs e)
+        {
+            AssignWork myAssignWork = new AssignWork();
+            myAssignWork.Show();
+        }
     }
 }

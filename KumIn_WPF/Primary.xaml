@@ -32,7 +32,7 @@
         <TextBox x:Name="txtSignIn" HorizontalAlignment="Left" Height="25" Margin="578,21,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="239" TextChanged="textBox_TextChanged" FontFamily="Lucida Sans" FontSize="14" VerticalContentAlignment="Center"/>
         <TextBox x:Name="txtSignOut" HorizontalAlignment="Left" Height="25" Margin="578,75,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="239" FontFamily="Lucida Sans" FontSize="14" VerticalContentAlignment="Center"/>
         <Label x:Name="lblTime" HorizontalContentAlignment="Center" Content="Current Date and Time" HorizontalAlignment="Left" Margin="204,21,0,0" VerticalAlignment="Top" Width="348" FontFamily="Lucida Sans" FontSize="14"/>
-        <Button x:Name="btnAddNewStudent" Content="Add New Student" HorizontalAlignment="Left" Margin="287,58,0,0" VerticalAlignment="Top" Width="182" Height="25" FontFamily="Lucida Sans" FontSize="14" Padding="0" BorderThickness="0" Click="btnAddNewStudent_Click"/>
+        <Button x:Name="btnAssignWork" Content="Assign Work" HorizontalAlignment="Left" Margin="287,83,0,0" VerticalAlignment="Top" Width="182" Height="25" FontFamily="Lucida Sans" FontSize="14" Padding="0" BorderThickness="0" Click="btnAddNewStudent_Click"/>
 
         <DataGrid x:Name="dgdListing" Background="Transparent" CanUserAddRows="False" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top" Height="274" Width="972" BorderThickness="0" AutoGenerateColumns="False" SelectionChanged="dgdListing_SelectionChanged">
             <DataGrid.Columns>
@@ -57,6 +57,5 @@
                 </DataGridCheckBoxColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Button x:Name="btnDeleteStudent" Content="Delete Student" HorizontalAlignment="Left" Margin="287,105,0,0" VerticalAlignment="Top" Width="182" Height="25" FontFamily="Lucida Sans" FontSize="14" BorderThickness="0" Click="button_Click"/>
     </Grid>
 </Window>

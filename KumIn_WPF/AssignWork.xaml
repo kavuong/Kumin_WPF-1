@@ -1,0 +1,73 @@
+﻿<Window x:Class="KumIn_WPF.AssignWork"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KumIn_WPF"
+        mc:Ignorable="d"
+        Title="AssignWork" Height="500" Width="610"
+        Name="window">
+    <Window.Resources>
+        <Style TargetType="{x:Type DataGridCell}">
+            <Style.Setters>
+                <Setter Property="TextBlock.TextAlignment" Value="Center" />
+            </Style.Setters>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.Resources>
+            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+        </Grid.Resources>
+        <TextBox x:Name="txtNumAssign" HorizontalAlignment="Left" Height="25" Margin="461,158,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtNumAssign_TextChanged"/>
+        <TextBox x:Name="txtStartDate" HorizontalAlignment="Left" Height="25" Margin="461,188,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtStartDate_TextChanged"/>
+        <ComboBox x:Name="cbxSubject" SelectedValue="{Binding Subject, ElementName=window}" HorizontalAlignment="Left" Margin="461,128,0,0" VerticalAlignment="Top" Width="120" Height="25">
+            <ComboBoxItem Name="cbi0">None</ComboBoxItem>
+            <ComboBoxItem Name="cbi1">Math</ComboBoxItem>
+            <ComboBoxItem Name="cbi2">Reading</ComboBoxItem>
+        </ComboBox>
+        <TextBox x:Name="txtStartPage" HorizontalAlignment="Left" Height="25" Margin="461,247,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtStartPage_TextChanged"/>
+        <ComboBox x:Name="cbxPattern" SelectedValue="{Binding Pattern, ElementName=window}" HorizontalAlignment="Left" Margin="461,277,0,0" VerticalAlignment="Top" Width="120" Height="25">
+            <ComboBoxItem Name="cbp0">None</ComboBoxItem>
+            <ComboBoxItem Name="cbp1">5-5</ComboBoxItem>
+            <ComboBoxItem Name="cbp2">10-10</ComboBoxItem>
+            <ComboBoxItem Name="cbp3">4-3-3</ComboBoxItem>
+            <ComboBoxItem Name="cbp4">3-2</ComboBoxItem>
+            <ComboBoxItem Name="cbp5">2-2</ComboBoxItem>
+            <ComboBoxItem Name="cbp6">20-20</ComboBoxItem>
+        </ComboBox>
+        <ComboBox x:Name="cbxDayOff" SelectedValue="{Binding DayOff, ElementName=window}" HorizontalAlignment="Left" Margin="461,307,0,0" VerticalAlignment="Top" Width="120" Height="25">
+            <ComboBoxItem Name="cbd0">None</ComboBoxItem>
+            <ComboBoxItem Name="cbd1">Monday</ComboBoxItem>
+            <ComboBoxItem Name="cbd2">Tuesday</ComboBoxItem>
+            <ComboBoxItem Name="cbd3">Wednesday</ComboBoxItem>
+            <ComboBoxItem Name="cbd4">Thursday</ComboBoxItem>
+            <ComboBoxItem Name="cbd5">Friday</ComboBoxItem>
+            <ComboBoxItem Name="cbd6">Saturday</ComboBoxItem>
+            <ComboBoxItem Name="cbd7">Sunday</ComboBoxItem>
+        </ComboBox>
+        <DataGrid x:Name="dgdFormat" CanUserResizeRows="False" CanUserAddRows="False" RowHeight="40" HorizontalAlignment="Left" Margin="10,109,0,0" VerticalAlignment="Top" Height="350" Width="355" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding #}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="#" Width="35" HeaderStringFormat="" FontFamily="Lucida Sans" FontSize="20"/>
+                <DataGridTextColumn Binding="{Binding Assigned}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Assigned:" Width="65" FontFamily="Lucida Sans" FontSize="18"/>
+                <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Completed:" Width="75" FontSize="20"/>
+                <DataGridTextColumn Binding="{Binding Level}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Level:" Width="50" FontSize="25"/>
+                <DataGridTextColumn Binding="{Binding Sheet#}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Sheet #:" Width="120" FontSize="25"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label x:Name="lblSubject" HorizontalContentAlignment="Center" Content="Subject:" HorizontalAlignment="Left" Margin="365,128,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblNumAssign" HorizontalContentAlignment="Center" Content="# Packets:" HorizontalAlignment="Left" Margin="365,158,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblStartDate" HorizontalContentAlignment="Center" Content="Start Date:" HorizontalAlignment="Left" Margin="365,188,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblLevel" HorizontalContentAlignment="Center" Content="Level:" HorizontalAlignment="Left" Margin="365,218,0,0" VerticalAlignment="Top" Height="24" Width="91" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblStartPage" HorizontalContentAlignment="Center" Content="Start Page:" HorizontalAlignment="Left" Margin="365,247,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblPattern" HorizontalContentAlignment="Center" Content="Pattern:" HorizontalAlignment="Left" Margin="365,277,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblDayOff" HorizontalContentAlignment="Center" Content="Day Off:" HorizontalAlignment="Left" Margin="365,307,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
+        <TextBox x:Name="txtBarcode" KeyDown="txtBarcode_KeyDown" HorizontalAlignment="Left" Height="23" Margin="365,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="217"/>
+        <Label x:Name="lblBarcode" Content="Barcode:" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="441,26,0,0" VerticalAlignment="Top" Width="75" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblName" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,14,0,0" VerticalAlignment="Top" Width="350" Height="40" FontFamily="Lucida Sans" FontSize="25" FontWeight="SemiBold"/>
+        <Label x:Name="lblDateRange" HorizontalContentAlignment="Right" HorizontalAlignment="Left" Margin="185,64,0,0" VerticalAlignment="Top" Height="40" Width="175" FontFamily="Lucida Sans" FontSize="19"/>
+        <Label x:Name="lblSubjectBig" Content="{Binding Path=Subject, ElementName=window}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Height="40" Width="175" FontFamily="Lucida Sans" FontSize="20"/>
+        <Button x:Name="btnPrintRecord" Content="Legend" HorizontalAlignment="Left" Margin="443,398,0,0" VerticalAlignment="Top" Width="120" Height="50" Click="btnPrintRecord_Click"/>
+        <TextBox x:Name="txtLevel" HorizontalAlignment="Left" Height="24" Margin="461,218,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtLevel_TextChanged"/>
+
+    </Grid>
+</Window>
