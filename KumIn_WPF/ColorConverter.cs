@@ -13,7 +13,7 @@ namespace KumIn_WPF
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             TimeSpan duration = TimeSpan.ParseExact(value.ToString(), "c", CultureInfo.InvariantCulture);
-            return duration.TotalMinutes >= 1 && duration.TotalMinutes < 2;
+            return duration.TotalMinutes >= 20 && duration.TotalMinutes < 30;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -27,7 +27,7 @@ namespace KumIn_WPF
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             TimeSpan duration = TimeSpan.ParseExact(value.ToString(), "c", CultureInfo.InvariantCulture);
-            return duration.TotalMinutes >= 2;
+            return duration.TotalMinutes >= 30;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

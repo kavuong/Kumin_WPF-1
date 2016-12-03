@@ -144,7 +144,7 @@ namespace KumIn_WPF
             string duration = "0:00";
             string lastDayIn = "";
             string range = "";
-            string spreadsheetId = "1KmeqPF07jnjZJ_FwWgZ4taj9N3c-3HK7qvOJmG1TpWs";
+            string spreadsheetId = "1KmeqPF07jnjZJ_FwWgZ4taj9N3c-3HK7qvOJmG1TpWs";  //CSV
             String spreadsheetId2 = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
 
             /*
@@ -182,7 +182,8 @@ namespace KumIn_WPF
                 }
             }
 
-            values = getSpreadsheetInfo("1KmeqPF07jnjZJ_FwWgZ4taj9N3c-3HK7qvOJmG1TpWs", range);
+            values = getSpreadsheetInfo(spreadsheetId, range);
+
 
             foreach (var row in values)
             {
@@ -244,6 +245,10 @@ namespace KumIn_WPF
             dummyTable.Rows.Add(dummyRow);
             dummyTable.DefaultView.Sort = "Duration DESC";
             txtSignIn.Clear();
+            txtSignIn.Focus();
+
+            List<Object> today = new List<object>() { DateTime.Now.ToString("MM/dd") };
+            updateSpreadsheetInfo(today, spreadsheetId, "I" + rowNum);
         }
         
         private void dgdListing_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -279,19 +284,17 @@ namespace KumIn_WPF
                             select u).FirstOrDefault();
                             */
 
-                IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "Sheet1!A1:B");
-
-                bool found = true;
+                IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "Sheet1!A1:J");
+                int rowNum = 1;
                 if (values != null && values.Count > 0)
                 {
-                    int rowNum = 1;
+                    
 
                     foreach (var row in values)
                     {
-                        if (row[0].ToString() == lastName && row[1].ToString() == firstName)
+                        if (drv["FirstName"].ToString() == row[1].ToString()
+                        && drv["LastName"].ToString() == row[0].ToString())
                         {
-                            range = "Sheet1!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
-                            found = true;
                             break;
                         }
                         else
@@ -299,12 +302,10 @@ namespace KumIn_WPF
                     }
                 }
 
-                values = getSpreadsheetInfo(spreadsheetId, range);
 
-                foreach (var row in values)
-                {
-                    email = row[3].ToString();
-                }
+                var myRow = values[rowNum - 1];
+
+                email = myRow[3].ToString();
 
                 mail.From = new MailAddress("anthonyluukumon@gmail.com");
                 mail.To.Add(email); // reg email
@@ -349,15 +350,24 @@ namespace KumIn_WPF
                             select u).FirstOrDefault();                                                          
                 */
                 
-                IList<IList<Object>>values = getSpreadsheetInfo("1KmeqPF07jnjZJ_FwWgZ4taj9N3c - 3HK7qvOJmG1TpWs", "Sheet1!A1:B");
+                IList<IList<Object>>values = getSpreadsheetInfo("1KmeqPF07jnjZJ_FwWgZ4taj9N3c-3HK7qvOJmG1TpWs", "Sheet1!A1:J");
 
+                int rowNum = 1;
                 foreach (var row in values)
                 {
-                    phone1 = row[4].ToString();
-                    carrier1 = row[5].ToString();
-                    phone2 = row[6].ToString();
-                    carrier2 = row[7].ToString();
+                    if (drv["FirstName"].ToString() == row[1].ToString()
+                        && drv["LastName"].ToString() == row[0].ToString())
+                        break;
+                    else
+                        rowNum++;
                 }
+
+                var myRow = values[rowNum - 1];
+
+                phone1 = myRow[4].ToString();
+                carrier1 = myRow[5].ToString();
+                phone2 = myRow[6].ToString();
+                carrier2 = myRow[7].ToString();
 
                 if (carrier1 == "Verizon")
                 {
@@ -423,7 +433,7 @@ namespace KumIn_WPF
                     carrierString2 = "@tmomail.net";
                 }
                 */
-                if (phone2 != null && carrierString2 != null)
+                if (phone2 != "" && carrierString2 != "")
                 {
                     mail2.From = new MailAddress("anthonyluukumon@gmail.com");
                     mail2.To.Add(phone2 + carrierString2); //phone
@@ -587,11 +597,9 @@ namespace KumIn_WPF
             List<Object> pasteRange = new List<object>() { };
             for (int i = 0; i < 10; i++)
                 pasteRange.Add(getStudents[rowNum - 1][i]);
-
-            pasteRange.Add((DateTime.Now - new TimeSpan(int.Parse(string.Concat(getStudents[rowNum - 1][9].ToString()[0]
-                , getStudents[rowNum - 1][9].ToString()[1]))
-                , int.Parse(string.Concat(getStudents[rowNum - 1][9].ToString()[3], getStudents[rowNum - 1][9].ToString()[4]))
-                , 0)).ToString("hh:mm"));
+            TimeSpan duration = DateTime.Now.Subtract(Convert.ToDateTime(getStudents[rowNum - 1][9]));
+                
+            pasteRange.Add((duration).ToString(@"hh\:mm"));
 
             List <Object> deleteRow = new List<object>();
 
@@ -608,6 +616,24 @@ namespace KumIn_WPF
 
             appendSpreadsheetInfo(pasteRange, tempSheet, range);
 
+            txtSignOut.Text = "";
+            txtSignOut.Focus();
+        }
+
+        private void txtSignIn_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                btnSignIn_Click((object)sender, (RoutedEventArgs)e);
+            }
+        }
+
+        private void txtSignOut_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                btnSignOut_Click((object)sender, (RoutedEventArgs)e);
+            }
         }
     }
 }

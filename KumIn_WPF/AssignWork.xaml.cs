@@ -181,10 +181,12 @@ namespace KumIn_WPF
                             throw new EntryPointNotFoundException();
                         cbxSubject.Text = row[3].ToString();
                         txtNumAssign.Text = row[5].ToString();
-                        txtStartDate.Text = (new DateTime(DateTime.Now.Year, int.Parse(string.Concat(row[4].ToString()[0]
-                                    , row[4].ToString()[1])), int.Parse(string.Concat(row[4].ToString()[3]
-                                    , row[4].ToString()[4]))) + new TimeSpan(int.Parse(row[5].ToString()) + 1, 0, 0
-                                    , 0)).ToString("MM/dd");
+
+                        int lastDateIndex = row.Count - 2;
+                        DateTime lastDay = new DateTime(DateTime.Now.Year, int.Parse(string.Concat(row[lastDateIndex].ToString()[0]
+                                    , row[lastDateIndex].ToString()[1])), int.Parse(string.Concat(row[lastDateIndex].ToString()[3]
+                                    , row[lastDateIndex].ToString()[4]))) + new TimeSpan(1, 0, 0, 0);
+                        txtStartDate.Text = (lastDay).ToString("MM/dd");
                         string[] subStringLevel = row[7 + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
                         txtLevel.Text = subStringLevel[0];
                         string[] subStringPage = subStringLevel[1].Split('-');
