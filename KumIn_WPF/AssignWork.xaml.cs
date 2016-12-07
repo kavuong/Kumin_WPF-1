@@ -112,19 +112,19 @@ namespace KumIn_WPF
                         if (!found)
                             throw new EntryPointNotFoundException();
                         cbxSubject.Text = row[3].ToString();
-                        txtNumAssign.Text = row[5].ToString();
+                        txtNumAssign.Text = row[7].ToString();
 
                         int lastDateIndex = row.Count - 2;
                         DateTime lastDay = new DateTime(DateTime.Now.Year, int.Parse(string.Concat(row[lastDateIndex].ToString()[0]
                                     , row[lastDateIndex].ToString()[1])), int.Parse(string.Concat(row[lastDateIndex].ToString()[3]
                                     , row[lastDateIndex].ToString()[4]))) + new TimeSpan(1, 0, 0, 0);
                         txtStartDate.Text = (lastDay).ToString("MM/dd");
-                        string[] subStringLevel = row[7 + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
+                        string[] subStringLevel = row[9 + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
                         txtLevel.Text = subStringLevel[0];
                         string[] subStringPage = subStringLevel[1].Split('-');
                         txtStartPage.Text = (int.Parse(subStringPage[1]) + 1).ToString();
-                        cbxPattern.Text = row[6].ToString();
-                        cbxDayOff.Text = row[7].ToString();
+                        cbxPattern.Text = row[8].ToString();
+                        cbxDayOff.Text = row[9].ToString();
                     }
 
                 }
@@ -260,28 +260,31 @@ namespace KumIn_WPF
             }
 
             spreadsheetId = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
-            range = "Test!A" + rowNum.ToString() + ":AAA" + rowNum.ToString();
+            range = "Test!A" + rowNum.ToString() + ":D" + rowNum.ToString();
             ValueRange valueRange = new ValueRange();
 
             var oblist = new List<object>();
-
+            var oblist2 = new List<object>();
             oblist.Add(name[1]);
             oblist.Add(name[0]);
             oblist.Add(barcode);
             oblist.Add(Subject);
-            oblist.Add(DateTime.Now.ToString("MM/dd"));
-            oblist.Add(txtNumAssign.Text);
-            oblist.Add(Pattern);
-            oblist.Add(DayOff);
+
+            updateSpreadsheetInfo(oblist, spreadsheetId, range);
+
+            range = "Test!G" + rowNum.ToString() + ":AAA" + rowNum.ToString();
+            oblist2.Add(DateTime.Now.ToString("MM/dd"));
+            oblist2.Add(txtNumAssign.Text);
+            oblist2.Add(Pattern);
+            oblist2.Add(DayOff);
 
             for(int i = 0; i < 2 * int.Parse(txtNumAssign.Text); i+=2)
             {
-                oblist.Add(dateAssign[i]);
-                oblist.Add(dateAssign[i + 1]);
-
+                oblist2.Add(dateAssign[i]);
+                oblist2.Add(dateAssign[i + 1]);
             }
 
-            updateSpreadsheetInfo(oblist, spreadsheetId, range);
+            updateSpreadsheetInfo(oblist2, spreadsheetId, range);
         }
 
 
