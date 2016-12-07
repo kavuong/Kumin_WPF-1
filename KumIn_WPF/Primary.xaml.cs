@@ -407,7 +407,7 @@ namespace KumIn_WPF
                     mail1.From = new MailAddress("anthonyluukumon@gmail.com");
                     mail1.To.Add(phone1 + carrierString1); //phone
                     mail1.Subject = "Kumon Reminder";
-                    mail1.Body = "Your student is done.";
+                    mail1.Body = "Your child - " + firstName + " " + lastName + " - is ready to be picked up";
                     SmtpServer.Port = 587;
                     SmtpServer.Credentials = new System.Net.NetworkCredential("anthonyluukumon@gmail.com"
                            , "letmeout");

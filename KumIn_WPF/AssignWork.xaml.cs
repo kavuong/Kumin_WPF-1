@@ -39,44 +39,7 @@ namespace KumIn_WPF
         {
             InitializeComponent();
 
-            /*
-            UserCredential credential;
 
-            using (var stream =
-                new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-            {
-                string credPath = System.Environment.GetFolderPath(
-                    System.Environment.SpecialFolder.Personal);
-                credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
-
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            }
-
-            // Create Google Sheets API service.
-            var service = new SheetsService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
-
-            String spreadsheetId = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
-            String range = "Test";
-            ValueRange valueRange = new ValueRange();
-
-            var oblist = new List<object>() { "Srinath", "Is", "A", "Legend", "Yay!" };
-            valueRange.Values = new List<IList<object>> { oblist };
-
-            SpreadsheetsResource.ValuesResource.AppendRequest append = service.Spreadsheets.Values.Append(
-                valueRange, spreadsheetId, range);
-            append.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
-
-            AppendValuesResponse result = append.Execute();
-            */
             dt.Columns.Add("#");
             dt.Columns.Add("Assigned");
             dt.Columns.Add("Completed");
@@ -112,46 +75,18 @@ namespace KumIn_WPF
             {
                 try
                 {
-                    UserCredential credential;
-
-                    using (var stream =
-                        new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-                    {
-                        string credPath = System.Environment.GetFolderPath(
-                            System.Environment.SpecialFolder.Personal);
-                        credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
-
-                        credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                            GoogleClientSecrets.Load(stream).Secrets,
-                            Scopes,
-                            "user",
-                            CancellationToken.None,
-                            new FileDataStore(credPath, true)).Result;
-                    }
-
-                    // Create Google Sheets API service.
-                    var service = new SheetsService(new BaseClientService.Initializer()
-                    {
-                        HttpClientInitializer = credential,
-                        ApplicationName = ApplicationName,
-                    });
-
-                    string spreadsheetId = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
-                    string range = "Test!C1:D";
-                    SpreadsheetsResource.ValuesResource.GetRequest request =
-                            service.Spreadsheets.Values.Get(spreadsheetId, range);
-
-                    ValueRange response = request.Execute();
-                    IList<IList<Object>> values = response.Values;
+                    
+                    IList<IList<Object>> values = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", "Test!C1:D");
 
                     bool found = true;
+                    string range = "";
                     if (values != null && values.Count > 0)
                     {
                         int rowNum = 1;
 
                         foreach (var row in values)
                         {
-
+                            
                             if (row[0].ToString() == txtBarcode.Text && row[1].ToString() == Subject)
                             {
                                 range = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
@@ -168,10 +103,7 @@ namespace KumIn_WPF
                         }
                     }
 
-                    request = service.Spreadsheets.Values.Get(spreadsheetId, range);
-                    response = request.Execute();
-                    values = response.Values;
-
+                    values = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", range);
 
 
                     foreach (var row in values)
@@ -232,13 +164,9 @@ namespace KumIn_WPF
             txtBarcode.Focus();
         }
 
-
-        private void writeData(string[] dateAssign)
+        private IList<IList<Object>> getSpreadsheetInfo(string spreadsheetId, string range)
         {
             UserCredential credential;
-            int rowNum = 1;
-            string[] name = lblName.Content.ToString().Split(' ');
-            string barcode = name[0].ToUpper() + "-" + string.Concat(name[1][0], name[1][1]).ToUpper();
 
             using (var stream =
                 new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
@@ -262,17 +190,61 @@ namespace KumIn_WPF
                 ApplicationName = ApplicationName,
             });
 
-            string spreadsheetId = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
-            string range = "Test!C1:D";
             SpreadsheetsResource.ValuesResource.GetRequest request =
-                    service.Spreadsheets.Values.Get(spreadsheetId, range);
+                        service.Spreadsheets.Values.Get(spreadsheetId, range);
 
             ValueRange response = request.Execute();
             IList<IList<Object>> values = response.Values;
+            return values;
+        }
+        private void updateSpreadsheetInfo(List<Object> oblist, string spreadsheetId, string range)
+        {
+            List<IList<Object>> values = new List<IList<object>> { oblist };
 
-            if (values != null && values.Count > 0)
+            ValueRange valueRange = new ValueRange();
+            valueRange.Values = values;
+            UserCredential credential;
+
+            using (var stream =
+                new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
             {
-                
+                string credPath = System.Environment.GetFolderPath(
+                    System.Environment.SpecialFolder.Personal);
+                credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
+
+                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    GoogleClientSecrets.Load(stream).Secrets,
+                    Scopes,
+                    "user",
+                    CancellationToken.None,
+                    new FileDataStore(credPath, true)).Result;
+            }
+
+            // Create Google Sheets API service.
+            var service = new SheetsService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName,
+            });
+
+            SpreadsheetsResource.ValuesResource.UpdateRequest request =
+                        service.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
+            request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+            request.Execute();
+        }
+
+
+        private void writeData(string[] dateAssign)
+        {
+            int rowNum = 1;
+            string[] name = lblName.Content.ToString().Split(' ');
+            string barcode = name[0].ToUpper() + "-" + string.Concat(name[1][0], name[1][1]).ToUpper();
+
+            IList<IList<Object>> values = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", "Test!C1:D");
+            string range = "";
+            string spreadsheetId = "";
+            if (values != null && values.Count > 0)
+            {                
 
                 foreach (var row in values)
                 {
@@ -309,16 +281,7 @@ namespace KumIn_WPF
 
             }
 
-            valueRange.Values = new List<IList<object>> { oblist };
-
-            SpreadsheetsResource.ValuesResource.UpdateRequest update = service.Spreadsheets.Values.Update(
-                valueRange, spreadsheetId, range);
-            update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-
-            UpdateValuesResponse result = update.Execute();
-
-
-
+            updateSpreadsheetInfo(oblist, spreadsheetId, range);
         }
 
 
@@ -327,7 +290,6 @@ namespace KumIn_WPF
             try
             {
                 dt.Clear();
-
 
                 if (txtNumAssign.Text != "" && txtStartDate.Text.Length == 5 && Subject != ""
                     && txtStartPage.Text != "" && txtNumAssign.Text != "" && Pattern != "")
