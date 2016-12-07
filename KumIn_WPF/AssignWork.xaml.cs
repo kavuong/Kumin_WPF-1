@@ -86,7 +86,7 @@ namespace KumIn_WPF
 
         private void btnPrintRecord_Click(object sender, RoutedEventArgs e)
         {
-            writeData(updateData());
+            writeData(getDateAssign());
             print();
         }
 
@@ -322,9 +322,8 @@ namespace KumIn_WPF
         }
 
 
-        private string[] updateData()
+        private void updateData()
         {
-            string[] dateAssign = new string[50];
             try
             {
                 dt.Clear();
@@ -338,7 +337,6 @@ namespace KumIn_WPF
                     int sheet = int.Parse(txtStartPage.Text);
                     int nextSheet = 0;
                     bool flag = false;
-                    int j = 0;
                     for (int i = 0; i < int.Parse(txtNumAssign.Text); i++)
                     {
                         DataRow myRow = dt.NewRow();
@@ -409,15 +407,12 @@ namespace KumIn_WPF
 
                         myRow["Sheet#"] = sheet.ToString() + "-" + (nextSheet - 1).ToString();
 
-                        dateAssign[j] = assignDate.ToString("MM/dd");
-                        dateAssign[j + 1] = level.Level + " " + sheet.ToString() + "-" + (nextSheet - 1).ToString();
-
                         sheet = nextSheet;
                         dgdFormat.ItemsSource = dt.DefaultView;
 
                         dt.Rows.Add(myRow);
 
-                        j += 2;
+
                     }
                     lblDateRange.Content = txtStartDate.Text + "-" + assignDate.ToString("MM/dd");
                 }
@@ -426,6 +421,35 @@ namespace KumIn_WPF
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private string[] getDateAssign()
+        {
+            string[] dateAssign = new string[76];
+            DataTable table = new DataTable();
+            table.Columns.Add("Assigned");
+            table.Columns.Add("Sheet#");
+
+            for (int i = 0; i < dgdFormat.Items.Count; i++)
+            {
+                DataRow dr = table.NewRow();
+
+                dr["Assigned"] = (dgdFormat.Items[i] as DataRowView)[1];
+                dr["Sheet#"] = (dgdFormat.Items[i] as DataRowView)[3].ToString()
+                    + " " + (dgdFormat.Items[i] as DataRowView)[4].ToString();
+
+                table.Rows.Add(dr);
+            }
+
+            int j = 0;
+            foreach (DataRowView row in table.DefaultView)
+            {
+                dateAssign[j] = row["Assigned"].ToString();
+                dateAssign[j + 1] = row["Sheet#"].ToString();
+
+                j += 2;
+            }
+
             return dateAssign;
         }
 

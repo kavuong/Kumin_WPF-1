@@ -50,7 +50,7 @@
                 <DataGridTextColumn Binding="{Binding #}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="#" Width="35" HeaderStringFormat="" FontFamily="Lucida Sans" FontSize="20"/>
                 <DataGridTextColumn Binding="{Binding Assigned}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Assigned:" Width="65" FontFamily="Lucida Sans" FontSize="18"/>
                 <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Completed:" Width="75" FontSize="20"/>
-                <DataGridTextColumn Binding="{Binding Level}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Level:" Width="50" FontSize="25"/>
+                <DataGridTextColumn Binding="{Binding Level }" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Level:" Width="50" FontSize="25"/>
                 <DataGridTextColumn Binding="{Binding Sheet#}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Sheet #:" Width="120" FontSize="25"/>
             </DataGrid.Columns>
         </DataGrid>
@@ -66,7 +66,7 @@
         <Label x:Name="lblName" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,14,0,0" VerticalAlignment="Top" Width="350" Height="40" FontFamily="Lucida Sans" FontSize="25" FontWeight="SemiBold"/>
         <Label x:Name="lblDateRange" HorizontalContentAlignment="Right" HorizontalAlignment="Left" Margin="185,64,0,0" VerticalAlignment="Top" Height="40" Width="175" FontFamily="Lucida Sans" FontSize="19"/>
         <Label x:Name="lblSubjectBig" Content="{Binding Path=Subject, ElementName=window}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Height="40" Width="175" FontFamily="Lucida Sans" FontSize="20"/>
-        <Button x:Name="btnPrintRecord" Content="Legend" HorizontalAlignment="Left" Margin="443,398,0,0" VerticalAlignment="Top" Width="120" Height="50" Click="btnPrintRecord_Click"/>
+        <Button x:Name="btnPrintRecord" Content="Print and Record" HorizontalAlignment="Left" Margin="443,398,0,0" VerticalAlignment="Top" Width="120" Height="50" Click="btnPrintRecord_Click" BorderThickness="0"/>
         <TextBox x:Name="txtLevel" HorizontalAlignment="Left" Height="24" Margin="461,218,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtLevel_TextChanged"/>
 
     </Grid>
