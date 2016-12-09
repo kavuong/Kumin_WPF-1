@@ -135,120 +135,76 @@ namespace KumIn_WPF
 
         }
 
-        private void btnSignIn_Click(object sender, RoutedEventArgs e)
+        private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
-            DataRow dummyRow = dummyTable.NewRow();
-            string firstName = "";
-            string lastName = "";
-            string timeIn = "";
-            string duration = "0:00";
-            string lastDayIn = "";
-            string range = "";
-            string spreadsheetId = "1KmeqPF07jnjZJ_FwWgZ4taj9N3c-3HK7qvOJmG1TpWs";  //CSV
-            String spreadsheetId2 = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
-
-            /*
-            DataClasses1DataContext db = new DataClasses1DataContext();
-            var user = (from u in db.FStudentTables
-                        where u.Barcode == txtSignIn.Text
-                        select u).FirstOrDefault();
-            dummyRow["FirstName"] = user.FirstName;
-            dummyRow["LastName"] = user.LastName;
-            dummyRow["InTime"] = DateTime.Now.ToString("t");
-            dummyRow["Duration"] = "00:00:00";
-            */
-            /*
-            dummyRow["FirstName"] = "Srinath";
-            dummyRow["LastName"] = "Nandakumar";
-            dummyRow["InTime"] = DateTime.Now.ToString("t");
-            dummyRow["Duration"] = "00:00:00";
-            */
-
-            IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "Sheet1!A1:I");
-            int rowNum = 1;
-
-            if (values != null && values.Count > 0)            {
-                
-
-                foreach (var row in values)
+            // If scanner is not working ==> dialog confirm
+            if (!char.IsLetter(txtUpdate.Text[0]))
+            {
+                Confirmation myConfirm = new Confirmation(txtUpdate.Text);
+                if (myConfirm.ShowDialog() == true)
                 {
-                    if (row[2].ToString() == txtSignIn.Text)
+                    // Populate display after checking firstname, lastname, number
+                    if (!isSignedIn(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName }))
                     {
-                        range = "Sheet1!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
-                        break;
+                        populateDataGrid(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
                     }
-                    else
-                        rowNum++;
+                    else // confirm signout then do it
+                    {
+                        int rowNum = 0;
+                        foreach (DataRow row in dummyTable.Rows)
+                        {
+                            if (txtUpdate.Text.Substring(1) == row["Barcode"].ToString())
+                                break;
+                            else
+                                rowNum++;
+                        }
+                        DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[rowNum]["TimeIn"].ToString());
+                        if (DateTime.Now - timeIn > new TimeSpan(0, 1, 0))
+                        {
+                            signOut(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
+                        }
+                        else if (MessageBox.Show("Student was recently signed in, sign out already?"
+                            , "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        {
+                            signOut(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
+                        }
+                    }
+                    // Throw error if not found.
                 }
             }
-
-            values = getSpreadsheetInfo(spreadsheetId, range);
-
-
-            foreach (var row in values)
+            // Scanner is working so barcode = 'a' + number
+            else
             {
-                lastName = row[0].ToString();
-                firstName = row[1].ToString();
-                lastDayIn = row[8].ToString();              
-            }
-
-            dummyRow["FirstName"] = firstName;
-            dummyRow["LastName"] = lastName;
-            dummyRow["InTime"] = DateTime.Now.ToString("t");
-            dummyRow["Duration"] = "00:00:00";
-            dummyRow["LastDay"] = lastDayIn;
-
-
-            String range2 = "Sheet1!A1:Z1000";
-            values = getSpreadsheetInfo(spreadsheetId2, range2);
-
-            int pasteRowNum = 1;
-            foreach (var row in values)
-            {
-                if (row.Count == 0)
+                // Populate display after checking barcode
+                if (!isSignedIn(new string[1] { txtUpdate.Text.Substring(1) }))
                 {
-                    break;
+                    populateDataGrid(new string[1] { txtUpdate.Text.Substring(1) });
                 }
-                pasteRowNum++;
-            }
-            // String spreadsheetId = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
-            // String range = "Sheet1!A1:Z";
-            if (lastName != null && firstName != null)
-            {
-                range = "Sheet1!A" + rowNum.ToString() + ":Z" + rowNum.ToString();
-                range2 = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
-
-                IList<IList<Object>> getValues = getSpreadsheetInfo(spreadsheetId, range);
-
-                var oblist = new List<Object>();
+                else // confirm signout then do it
+                {
+                    int rowNum = 0;
+                    foreach (DataRow row in dummyTable.Rows)
+                    {
+                        if (txtUpdate.Text.Substring(1) == row["Barcode"].ToString())
+                            break;
+                        else
+                            rowNum++;
+                    }
+                    DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[rowNum]["TimeIn"].ToString());
+                    if (DateTime.Now - timeIn > new TimeSpan(0,1,0))
+                    {
+                        signOut(new string[1] { txtUpdate.Text.Substring(1) });
+                    }
+                    else if (MessageBox.Show("Student was recently signed in, sign out already?"
+                        , "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        signOut(new string[1] { txtUpdate.Text.Substring(1) });
+                    }
+                }
                 
-                foreach (var row in getValues)
-                {
-                    for (int i = 0; i < row.Count; i++)
-                        oblist.Add(row[i]);
-                }
-
-                updateSpreadsheetInfo(oblist, spreadsheetId2, range2);
-
-
-                // inputs timeIn into temp spreadsheet
-                String range3 = "Sheet1!J" + pasteRowNum.ToString();  
-                ValueRange valueRange = new ValueRange();
-                valueRange.MajorDimension = "COLUMNS";
-
-                var oblist2 = new List<object>() { DateTime.Now.ToString("t") };
-                valueRange.Values = new List<IList<object>> { oblist2 };
-
-                updateSpreadsheetInfo(oblist2, spreadsheetId2, range3);
             }
-            dgdListing.ItemsSource = dummyTable.DefaultView;
-            dummyTable.Rows.Add(dummyRow);
-            dummyTable.DefaultView.Sort = "Duration DESC";
-            txtSignIn.Clear();
-            txtSignIn.Focus();
 
-            List<Object> today = new List<object>() { DateTime.Now.ToString("MM/dd") };
-            updateSpreadsheetInfo(today, spreadsheetId, "I" + rowNum);
+            
         }
         
         private void dgdListing_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -264,6 +220,215 @@ namespace KumIn_WPF
         {
             sendOutEmail();
         }
+
+        private bool isSignedIn(string[] checkValues)
+        {
+            // Scanner works? checkvalues.count == 1
+
+            foreach (DataRow row in dummyTable.Rows)
+            {
+                if (row["Barcode"].ToString() == checkValues[0])
+                {
+                    // Check if manual entry
+                    if (checkValues.Count() == 3)
+                        return row["FirstName"].ToString().ToUpper() == checkValues[1].ToUpper()
+                            && row["LastName"].ToString().ToUpper() == checkValues[2].ToUpper();
+                    else
+                        return true;
+                }
+
+                // We need to store the barcode inside dataTable but not display in datagrid.
+                // AKA: new column in datatable, but dont bind that column to datagrid.
+                // Use dateTime.Now - signInTime < 1 ==> messagebox confirm 
+                // Also, remove the sign out textbox and button.
+
+
+                // Good idea to also add column with number of subjects in our dataTable too
+                // Storing this info which we use a lot can help shorten number of spreadsheet calls
+                // All of this would also help when we record information into the record as we can
+                // use the info in our internal datatable row rather than  
+            }
+
+            return false;
+        }
+
+        private void signOut(string[] checkValues)
+        {
+            // Scanner works? checkvalues.count == 1.
+
+            string tempSheet = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
+            string range = "Sheet1!A1:J";
+
+            IList<IList<Object>> getStudents = getSpreadsheetInfo(tempSheet, range);
+            int rowNum = 1;
+            foreach (var row in getStudents)
+            {
+                if (row.Count != 0)
+                {
+                    if (checkValues[0] == row[2].ToString())
+                    {
+                        if (checkValues.Count() == 3)
+                        {
+                            if (row[1].ToString().ToUpper() == checkValues[1].ToUpper()
+                            && row[0].ToString().ToUpper() == checkValues[2].ToUpper())
+                                break; // additional autherntiacation
+                        }
+                        else
+                            break; // Scan by scanner
+                    }
+                    else
+                    {
+                        rowNum++;
+                    }
+                }
+                else
+                    rowNum++;
+            }
+
+            List<Object> pasteRange = new List<object>() { };
+            for (int i = 0; i < 10; i++)
+                pasteRange.Add(getStudents[rowNum - 1][i]);
+            TimeSpan duration = DateTime.Now.Subtract(Convert.ToDateTime(getStudents[rowNum - 1][9]));
+
+            pasteRange.Add((duration).ToString(@"hh\:mm"));
+
+            List<Object> deleteRow = new List<object>();
+
+            for (int i = 0; i < 10; i++)
+                deleteRow.Add("");
+
+            range = "Sheet1!A" + rowNum.ToString() + ":J" + rowNum.ToString();
+
+            updateSpreadsheetInfo(deleteRow, tempSheet, range);
+
+            // Transfer row to permanent record
+
+            range = "Record!A1:A";
+
+            appendSpreadsheetInfo(pasteRange, tempSheet, range);
+
+            txtUpdate.Text = "";
+            txtUpdate.Focus();
+        }
+
+        private void populateDataGrid(string[] checkValues)
+        {
+            // Scanner works? checkvalues.count == 1.
+
+
+            DataRow dummyRow = dummyTable.NewRow();
+            string firstName = "";
+            string lastName = "";
+            string lastDayIn = "";
+            string range = "";
+            string spreadsheetId = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";  //STUDENT-database
+            string spreadsheetId2 = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"; //attendance record
+            string barcode = "";
+
+
+            IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "Sheet1!A1:I");
+            int rowNum = 1;
+
+            if (values != null && values.Count > 0)
+            {
+
+
+                foreach (var row in values)
+                {
+                    if (row[4].ToString() == checkValues[0])
+                    {
+                        if (checkValues.Count() == 3)
+                        {
+                            if (row[1].ToString().ToUpper() == checkValues[1].ToUpper()
+                            && row[0].ToString().ToUpper() == checkValues[2].ToUpper())
+                            {
+                                range = "Sheet1!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
+                                break; // additional autherntiacation
+                            }
+                        }
+                        else
+                        {
+                            range = "Sheet1!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
+                            break;
+                        }
+                    }
+                    else
+                        rowNum++;
+                }
+            }
+
+            values = getSpreadsheetInfo(spreadsheetId, range);
+
+
+            foreach (var row in values)
+            {
+                lastName = row[7].ToString();
+                firstName = row[5].ToString();
+                lastDayIn = row[8].ToString(); //check
+                barcode = row[4].ToString(); // check             
+            }
+
+            dummyRow["FirstName"] = firstName;
+            dummyRow["LastName"] = lastName;
+            dummyRow["InTime"] = DateTime.Now.ToString("t");
+            dummyRow["Duration"] = "00:00:00";
+            dummyRow["LastDay"] = lastDayIn;
+            dummyRow["Barcode"] = barcode;
+
+
+            string range2 = "Sheet1!A1:Z1000";
+            values = getSpreadsheetInfo(spreadsheetId2, range2);
+
+            int pasteRowNum = 1;
+            foreach (var row in values)
+            {
+                if (row.Count == 0)
+                {
+                    break;
+                }
+                pasteRowNum++;
+            }
+
+            // edit this to pull appropriate valued from database into temp and record sheet columns
+            if (lastName != null && firstName != null)
+            {
+                range = "Sheet1!A" + rowNum.ToString() + ":Z" + rowNum.ToString();
+                range2 = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
+
+                IList<IList<Object>> getValues = getSpreadsheetInfo(spreadsheetId, range);
+
+                var oblist = new List<Object>();
+
+                foreach (var row in getValues)
+                {
+                    for (int i = 0; i < row.Count; i++)
+                        oblist.Add(row[i]);
+                }
+
+                updateSpreadsheetInfo(oblist, spreadsheetId2, range2);
+
+
+                // inputs timeIn into temp spreadsheet
+                String range3 = "Sheet1!J" + pasteRowNum.ToString();
+                ValueRange valueRange = new ValueRange();
+                valueRange.MajorDimension = "COLUMNS";
+
+                var oblist2 = new List<object>() { DateTime.Now.ToString("t") };
+                valueRange.Values = new List<IList<object>> { oblist2 };
+
+                updateSpreadsheetInfo(oblist2, spreadsheetId2, range3);
+            }
+            dgdListing.ItemsSource = dummyTable.DefaultView;
+            dummyTable.Rows.Add(dummyRow);
+            dummyTable.DefaultView.Sort = "Duration DESC";
+            txtUpdate.Clear();
+            txtUpdate.Focus();
+
+            List<Object> today = new List<object>() { DateTime.Now.ToString("MM/dd") };
+            updateSpreadsheetInfo(today, spreadsheetId, "I" + rowNum);
+        }
+
+
         private void sendHomeworkEmail()
         {
             try
@@ -570,69 +735,11 @@ namespace KumIn_WPF
             request.Execute();
         }
 
-        private void btnSignOut_Click(object sender, RoutedEventArgs e)
-        {
-            string tempSheet = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
-            string range = "Sheet1!A1:J";
-
-            IList<IList<Object>> getStudents = getSpreadsheetInfo(tempSheet, range);
-            int rowNum = 1;
-            foreach (var row in getStudents)
-            {
-                if (row.Count != 0)
-                {
-                    if (txtSignOut.Text == row[2].ToString())
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        rowNum++;
-                    }
-                }
-                else
-                    rowNum++;
-            }
-
-            List<Object> pasteRange = new List<object>() { };
-            for (int i = 0; i < 10; i++)
-                pasteRange.Add(getStudents[rowNum - 1][i]);
-            TimeSpan duration = DateTime.Now.Subtract(Convert.ToDateTime(getStudents[rowNum - 1][9]));
-                
-            pasteRange.Add((duration).ToString(@"hh\:mm"));
-
-            List <Object> deleteRow = new List<object>();
-
-            for (int i = 0; i < 10; i++)
-                deleteRow.Add("");
-
-            range = "Sheet1!A" + rowNum.ToString() + ":J" + rowNum.ToString();
-
-            updateSpreadsheetInfo(deleteRow, tempSheet, range);
-
-            // Transfer row to permanent record
-
-            range = "Record!A1:A";
-
-            appendSpreadsheetInfo(pasteRange, tempSheet, range);
-
-            txtSignOut.Text = "";
-            txtSignOut.Focus();
-        }
-
-        private void txtSignIn_KeyDown(object sender, KeyEventArgs e)
+        private void txtUpdate_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                btnSignIn_Click((object)sender, (RoutedEventArgs)e);
-            }
-        }
-
-        private void txtSignOut_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                btnSignOut_Click((object)sender, (RoutedEventArgs)e);
+                btnUpdate_Click((object)sender, (RoutedEventArgs)e);
             }
         }
     }
