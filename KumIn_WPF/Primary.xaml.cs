@@ -81,29 +81,33 @@ namespace KumIn_WPF
             timeNow = DateTime.Now;
             lblTime.Content = timeNow.ToString("f");
 
-            // update temp sheet with #completed and #missing
-            DataTable dt = new DataTable();
-            dt = ((DataView)dgdListing.ItemsSource).ToTable();
-
-            foreach (DataRow row in dt.Rows)
+            // update temp sheet with #completed and #missing            
+            if (dummyTable.Rows.Count != 0)
             {
-                if (row[5].ToString() != "" && row[6].ToString() != "")
-                {
-                    // Get rowNum
-                    IList<IList<Object>> column = getSpreadsheetInfo("14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk", "Sheet1!A1:B");
-                    int rowNum = 1;
-                    foreach (var cell in column)
-                    {
-                        if (cell[0].ToString() == row[1].ToString() && cell[1].ToString() == row[0].ToString())
-                            break;
-                        else
-                            rowNum++;
-                    }
+                DataTable dt = new DataTable();
+                dt = ((DataView)dgdListing.ItemsSource).ToTable();
 
-                    // Update cell values
-                    List<Object> oblist = new List<object> { row[5].ToString(), row[6].ToString() };
-                    updateSpreadsheetInfo(oblist, "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"
-                        , "Sheet1!K" + rowNum.ToString() + ":L" + rowNum.ToString());
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (row[5].ToString() != "" && row[6].ToString() != "")
+                    {
+                        // Get rowNum
+                        IList<IList<Object>> column = getSpreadsheetInfo("14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk", "Sheet1!A1:B");
+                        int rowNum = 1;
+                        foreach (var cell in column)
+                        {
+                            if (cell[0].ToString() == row[1].ToString() && cell[1].ToString() == row[0].ToString())
+                                break;
+                            else
+                                rowNum++;
+                        }
+
+                        // Update cell values
+                        List<Object> oblist = new List<object> { row[5].ToString(), row[6].ToString() };
+                        updateSpreadsheetInfo(oblist, "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"
+                            , "Sheet1!K" + rowNum.ToString() + ":L" + rowNum.ToString());
+                    }
                 }
             }
             IList<IList<Object>> values = getSpreadsheetInfo("14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk", "Sheet1!A1:Z");
@@ -128,17 +132,14 @@ namespace KumIn_WPF
                             DateTime duration = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, Convert.ToInt32(inTime[0]), Convert.ToInt32(inTime[1]), 0, 0);
                             TimeSpan result = DateTime.Now - duration;   
                             */
-                            dummyRow["InTime"] = row[9];
+                            dummyRow["InTime"] = row[11];
 
-                            TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now)).Subtract(DateTime.Parse(Convert.ToString(row[9])));
+                            TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now)).Subtract(DateTime.Parse(Convert.ToString(row[11])));
                             dummyRow["Duration"] = duration.ToString(@"hh\:mm");
                             dummyRow["LastDay"] = row[8];
 
-                            if (row[10] != null && row[11] != null)
-                            {
-                                dummyRow["#Completed"] = row[10];
-                                dummyRow["#Missing"] = row[11];
-                            }
+                            dummyRow["#Completed"] = row[9];
+                            dummyRow["#Missing"] = row[10];                            
 
                             dgdListing.ItemsSource = dummyTable.DefaultView;
                             dummyTable.DefaultView.Sort = "Duration DESC";
@@ -207,7 +208,7 @@ namespace KumIn_WPF
                     int rowNum = 0;
                     foreach (DataRow row in dummyTable.Rows)
                     {
-                        if (txtUpdate.Text.Substring(1) == row["Barcode"].ToString())
+                        if (txtUpdate.Text == row["Barcode"].ToString())
                             break;
                         else
                             rowNum++;
@@ -336,25 +337,33 @@ namespace KumIn_WPF
             string lastName = "";
             string lastDayIn = "";
             string range = "";
+            string tempRange = "Sheet1!A1:Z";
             string spreadsheetId = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";  //STUDENT-database
             string spreadsheetId2 = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"; //attendance record
             string barcode = "";
+            string realEmail;
+            string phone1;
+            string carrier1;
+            string phone2;
+            string carrier2;
             int subjects = 0;
             string[] subjectsArray;
 
             IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "DB-Master!A1:AI");
+            IList<IList<Object>> pasteValues = getSpreadsheetInfo(spreadsheetId2, tempRange);
             int rowNum = 1;
 
+            // Get rowNum and set range
             if (values != null && values.Count > 0)
             {
                 foreach (var row in values)
                 {
-                    if (row[4].ToString() == checkValues[0])
+                    if (row[3].ToString() == checkValues[0])
                     {
-                        if (checkValues.Count() == 3)
+                        if (checkValues.Length == 3)
                         {
-                            if (row[1].ToString().ToUpper() == checkValues[1].ToUpper()
-                            && row[0].ToString().ToUpper() == checkValues[2].ToUpper())
+                            if (row[5].ToString().ToUpper() == checkValues[1].ToUpper()
+                            && row[7].ToString().ToUpper() == checkValues[2].ToUpper())
                             {
                                 range = "DB-Master!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
                                 break; // additional autherntiacation
@@ -371,54 +380,43 @@ namespace KumIn_WPF
                 }
             }
 
+            // Get appropriate row
             values = getSpreadsheetInfo(spreadsheetId, range);
-
+            var oblist = new List<Object> { };
             foreach (var row in values)
             {
                 lastName = row[7].ToString();
                 firstName = row[5].ToString();
-                barcode = row[4].ToString();
+                barcode = row[3].ToString();
+                realEmail = row[15].ToString();
+                phone1 = row[11].ToString();
+                carrier1 = row[12].ToString();
+                phone2 = row[17].ToString();
+                carrier2 = row[18].ToString();
                 subjectsArray = (row[2].ToString()).Split(',');
                 if (subjectsArray.Length == 1)
                     subjects = 1;
                 else if (subjectsArray.Length == 2)
                     subjects = 2;
-            }
-            //get rowNum from Assignment Record spreadsheet
-            IList<IList<Object>> values2 = getSpreadsheetInfo(spreadsheetId2, "Test!A1:B");
-            int rowNum2 = 1;
-            string range2 = "";
-            foreach (var row in values2)
-            {
-                if (row[1].ToString() == firstName && row[0].ToString() == lastName)
-                {
-                    range2 = "Test!A" + rowNum2.ToString() + ":" + "AAA" + rowNum2.ToString();
-                    break;
-                }
-                else
-                {
-                    rowNum2++;
-                }
-            }
-            values2 = getSpreadsheetInfo(spreadsheetId2, range2);
-            foreach (var row in values2)
-            {
-                lastDayIn = row[24].ToString();
-            }
-            //get number of subjects
-            dummyRow["FirstName"] = firstName;
-            dummyRow["LastName"] = lastName;
-            dummyRow["InTime"] = DateTime.Now.ToString("t");
-            dummyRow["Duration"] = "00:00:00";
-            dummyRow["LastDay"] = lastDayIn;
-            dummyRow["Barcode"] = barcode;
-            dummyRow["#Subjects"] = subjects;
-            
-            string tempRange = "Sheet1!A1:Z";
-            values = getSpreadsheetInfo(spreadsheetId2, tempRange);
 
+
+                oblist.Add(lastName);
+                oblist.Add(firstName);
+                oblist.Add(barcode);
+                oblist.Add(realEmail);
+                oblist.Add(phone1);
+                oblist.Add(carrier1);
+                oblist.Add(phone2);
+                oblist.Add(carrier2);
+                oblist.Add("");                     // Updating Last-Day-In subsequently                
+                oblist.Add(" ");                     // Completed
+                oblist.Add(" ");                     // Missing
+                oblist.Add(DateTime.Now.ToString("t"));
+            }
+
+            // Find paste row num
             int pasteRowNum = 1;
-            foreach (var row in values)
+            foreach (var row in pasteValues)
             {
                 if (row.Count == 0)
                 {
@@ -427,33 +425,41 @@ namespace KumIn_WPF
                 pasteRowNum++;
             }
 
+            tempRange = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
+            updateSpreadsheetInfo(oblist, spreadsheetId2, tempRange);
+
             // edit this to pull appropriate valued from database into temp and record sheet columns
             if (lastName != null && firstName != null)
-            {
-                range = "Sheet1!A" + rowNum.ToString() + ":Z" + rowNum.ToString();
-                tempRange = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
-
-                IList<IList<Object>> getValues = getSpreadsheetInfo(spreadsheetId, range);
-
-                var oblist = new List<Object>();
-
-                foreach (var row in getValues)
+            {                
+                //get rowNum from Assignment Record spreadsheet
+                IList<IList<Object>> values2 = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", "Test!B1:C");
+                int rowNum2 = 1;
+                string assignmentRecordRange = "";
+                foreach (var row in values2)
                 {
-                    for (int i = 0; i < row.Count; i++)
-                        oblist.Add(row[i]);
+                    if (row[1].ToString() == firstName && row[0].ToString() == lastName)
+                    {
+                        assignmentRecordRange = "Test!B" + rowNum2.ToString() + ":" + "AAA" + rowNum2.ToString();
+                        break;
+                    }
+                    else
+                    {
+                        rowNum2++;
+                    }
                 }
-
-                updateSpreadsheetInfo(oblist, spreadsheetId2, tempRange);
-
-                // inputs timeIn into temp spreadsheet
-                String range3 = "Sheet1!J" + pasteRowNum.ToString();
-                ValueRange valueRange = new ValueRange();
-                valueRange.MajorDimension = "COLUMNS";
-
-                var oblist2 = new List<object>() { DateTime.Now.ToString("t") };
-                valueRange.Values = new List<IList<object>> { oblist2 };
-
-                updateSpreadsheetInfo(oblist2, spreadsheetId2, range3);
+                values2 = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", assignmentRecordRange);
+                foreach (var row in values2)
+                {
+                    lastDayIn = row[6].ToString();
+                }
+                //get number of subjects
+                dummyRow["FirstName"] = firstName;
+                dummyRow["LastName"] = lastName;
+                dummyRow["InTime"] = DateTime.Now.ToString("t");
+                dummyRow["Duration"] = "00:00:00";
+                dummyRow["LastDay"] = lastDayIn;
+                dummyRow["Barcode"] = barcode;
+                dummyRow["#Subjects"] = subjects.ToString();
             }
             dgdListing.ItemsSource = dummyTable.DefaultView;
             dummyTable.Rows.Add(dummyRow);

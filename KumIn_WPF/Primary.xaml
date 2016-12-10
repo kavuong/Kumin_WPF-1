@@ -12,21 +12,25 @@
         <Style TargetType="DataGridRow">
             <Setter Property="Background" Value="Transparent" />
             <Style.Triggers>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding Duration, Converter={StaticResource rconv}}" Value="True" />
-                        <Condition Binding="{Binding #Subjects, Converter={StaticResource rconv}}" Value="True" />
-                    </MultiDataTrigger.Conditions>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource rconv}">
+                            <Binding Path="Duration" />
+                            <Binding Path="#Subjects" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
                     <Setter Property="Background" Value="Red" />
                     <Setter Property="Foreground" Value="White" />
-                </MultiDataTrigger>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding Duration, Converter={StaticResource yconv}}" Value="True" />
-                        <Condition Binding="{Binding #Subjects, Converter={StaticResource yconv}}" Value="True" />
-                    </MultiDataTrigger.Conditions>
+                </DataTrigger>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource yconv}">
+                            <Binding Path="Duration" />
+                            <Binding Path="#Subjects" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
                     <Setter Property="Background" Value="Yellow" />
-                </MultiDataTrigger>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
@@ -49,6 +53,7 @@
                 <DataGridTextColumn Binding="{Binding LastDay}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Day"/>
                 <DataGridTextColumn Binding="{Binding #Completed}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Completed"/>
                 <DataGridTextColumn Binding="{Binding #Missing}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Missing"/>
+                <DataGridTextColumn Binding="{Binding #Subjects}" ClipboardContentBinding="{x:Null}" Header="# Subjects"/>
                 <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="HW Email?">
                     <DataGridCheckBoxColumn.CellStyle>
                         <Style>
