@@ -39,6 +39,8 @@
                 <DataGridTextColumn Binding="{Binding InTime}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="In Time"/>
                 <DataGridTextColumn Binding="{Binding Duration}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Duration" />
                 <DataGridTextColumn Binding="{Binding LastDay}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Day"/>
+                <DataGridTextColumn Binding="{Binding #Completed}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Completed"/>
+                <DataGridTextColumn Binding="{Binding #Missing}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Missing"/>
                 <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="HW Email?">
                     <DataGridCheckBoxColumn.CellStyle>
                         <Style>

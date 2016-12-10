@@ -44,6 +44,10 @@ namespace KumIn_WPF
             dummyTable.Columns.Add("InTime");
             dummyTable.Columns.Add("Duration");
             dummyTable.Columns.Add("LastDay");
+            dummyTable.Columns.Add("#Completed");
+            dummyTable.Columns.Add("#Missing");
+            dummyTable.Columns.Add("Barcode");
+            dummyTable.Columns.Add("#Subjects");
 
             lblTime.Content = timeNow.ToString("f");
 
@@ -78,18 +82,32 @@ namespace KumIn_WPF
         {
             timeNow = DateTime.Now;
             lblTime.Content = timeNow.ToString("f");
-            /*
-            foreach (DataRow row in dummyTable.Rows)
-            {
-                DateTime inTime = Convert.ToDateTime(row["InTime"]);
-                TimeSpan t = TimeSpan.FromMinutes((timeNow - inTime).Minutes);
-                int h = t.Hours;
-                int mm = t.Minutes;
-                row["Duration"] = t.ToString(@"h\:mm");
-                                     
-            }
-            */
 
+            // update temp sheet with #completed and #missing
+            DataTable dt = new DataTable();
+            dt = ((DataView)dgdListing.ItemsSource).ToTable();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                if (row[5].ToString() != "" && row[6].ToString() != "")
+                {
+                    // Get rowNum
+                    IList<IList<Object>> column = getSpreadsheetInfo("14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk", "Sheet1!A1:B");
+                    int rowNum = 1;
+                    foreach (var cell in column)
+                    {
+                        if (cell[0].ToString() == row[1].ToString() && cell[1].ToString() == row[0].ToString())
+                            break;
+                        else
+                            rowNum++;
+                    }
+
+                    // Update cell values
+                    List<Object> oblist = new List<object> { row[5].ToString(), row[6].ToString() };
+                    updateSpreadsheetInfo(oblist, "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"
+                        , "Sheet1!K" + rowNum.ToString() + ":L" + rowNum.ToString());
+                }
+            }
             IList<IList<Object>> values = getSpreadsheetInfo("14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk", "Sheet1!A1:Z");
 
             if (values != null && values.Count > 0)
@@ -117,6 +135,12 @@ namespace KumIn_WPF
                             TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now)).Subtract(DateTime.Parse(Convert.ToString(row[9])));
                             dummyRow["Duration"] = duration.ToString(@"hh\:mm");
                             dummyRow["LastDay"] = row[8];
+
+                            if (row[10] != null && row[11] != null)
+                            {
+                                dummyRow["#Completed"] = row[10];
+                                dummyRow["#Missing"] = row[11];
+                            }
 
                             dgdListing.ItemsSource = dummyTable.DefaultView;
                             dummyTable.DefaultView.Sort = "Duration DESC";
