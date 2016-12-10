@@ -42,7 +42,7 @@ namespace KumIn_WPF
                 max = 60;
             }
 
-            TimeSpan duration = TimeSpan.ParseExact(value.ToString(), "c", CultureInfo.InvariantCulture);
+            TimeSpan duration = TimeSpan.ParseExact(value[0].ToString(), "c", CultureInfo.InvariantCulture);
             return duration.TotalMinutes >= max;
         }
 
