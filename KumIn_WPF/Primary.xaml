@@ -12,13 +12,21 @@
         <Style TargetType="DataGridRow">
             <Setter Property="Background" Value="Transparent" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Duration, Converter={StaticResource rconv}, ConverterParameter=50}" Value="True">
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Duration, Converter={StaticResource rconv}}" Value="True" />
+                        <Condition Binding="{Binding #Subjects, Converter={StaticResource rconv}}" Value="True" />
+                    </MultiDataTrigger.Conditions>
                     <Setter Property="Background" Value="Red" />
                     <Setter Property="Foreground" Value="White" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Duration, Converter={StaticResource yconv}, ConverterParameter=50}" Value="True">
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Duration, Converter={StaticResource yconv}}" Value="True" />
+                        <Condition Binding="{Binding #Subjects, Converter={StaticResource yconv}}" Value="True" />
+                    </MultiDataTrigger.Conditions>
                     <Setter Property="Background" Value="Yellow" />
-                </DataTrigger>
+                </MultiDataTrigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
