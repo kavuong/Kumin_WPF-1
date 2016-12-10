@@ -257,7 +257,7 @@ namespace KumIn_WPF
             // Scanner works? checkvalues.count == 1.
 
             string tempSheet = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
-            string range = "Sheet1!A1:J";
+            string range = "Sheet1!A1:L";
 
             IList<IList<Object>> getStudents = getSpreadsheetInfo(tempSheet, range);
             int rowNum = 1;
