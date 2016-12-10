@@ -75,9 +75,7 @@ namespace KumIn_WPF
                 List<Object> date = new List<object>() { DateTime.Now.ToString("MM/dd/yyyy") };
                 appendSpreadsheetInfo(date, spreadsheetId, range);
             }
-
         }
-
         private void myTimer_Tick(object sender, object e)
         {
             timeNow = DateTime.Now;
@@ -146,19 +144,19 @@ namespace KumIn_WPF
                             dummyTable.DefaultView.Sort = "Duration DESC";
                             dummyTable.Rows.Add(dummyRow);
                         }
-                    }
-                    
-
+                    }                   
                 }
             }
 
         }
-
         private void textBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
         }
+        private void txtUpdate_TextChanged(object sender, TextChangedEventArgs e)
+        {
 
+        }
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
             // If scanner is not working ==> dialog confirm
@@ -224,11 +222,8 @@ namespace KumIn_WPF
                     {
                         signOut(new string[1] { txtUpdate.Text.Substring(1) });
                     }
-                }
-                
-            }
-
-            
+                }                
+            }            
         }
         
         private void dgdListing_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -265,7 +260,6 @@ namespace KumIn_WPF
                 // AKA: new column in datatable, but dont bind that column to datagrid.
                 // Use dateTime.Now - signInTime < 1 ==> messagebox confirm 
                 // Also, remove the sign out textbox and button.
-
 
                 // Good idea to also add column with number of subjects in our dataTable too
                 // Storing this info which we use a lot can help shorten number of spreadsheet calls
@@ -322,11 +316,9 @@ namespace KumIn_WPF
                 deleteRow.Add("");
 
             range = "Sheet1!A" + rowNum.ToString() + ":J" + rowNum.ToString();
-
             updateSpreadsheetInfo(deleteRow, tempSheet, range);
 
             // Transfer row to permanent record
-
             range = "Record!A1:A";
 
             appendSpreadsheetInfo(pasteRange, tempSheet, range);
@@ -339,7 +331,6 @@ namespace KumIn_WPF
         {
             // Scanner works? checkvalues.count == 1.
 
-
             DataRow dummyRow = dummyTable.NewRow();
             string firstName = "";
             string lastName = "";
@@ -348,15 +339,14 @@ namespace KumIn_WPF
             string spreadsheetId = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";  //STUDENT-database
             string spreadsheetId2 = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"; //attendance record
             string barcode = "";
-
+            int subjects = 0;
+            string[] subjectsArray;
 
             IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "DB-Master!A1:AI");
             int rowNum = 1;
 
             if (values != null && values.Count > 0)
             {
-
-
                 foreach (var row in values)
                 {
                     if (row[4].ToString() == checkValues[0])
@@ -383,12 +373,16 @@ namespace KumIn_WPF
 
             values = getSpreadsheetInfo(spreadsheetId, range);
 
-
             foreach (var row in values)
             {
                 lastName = row[7].ToString();
                 firstName = row[5].ToString();
-                barcode = row[4].ToString();           
+                barcode = row[4].ToString();
+                subjectsArray = (row[2].ToString()).Split(',');
+                if (subjectsArray.Length == 1)
+                    subjects = 1;
+                else if (subjectsArray.Length == 2)
+                    subjects = 2;
             }
             //get rowNum from Assignment Record spreadsheet
             IList<IList<Object>> values2 = getSpreadsheetInfo(spreadsheetId2, "Test!A1:B");
@@ -411,12 +405,14 @@ namespace KumIn_WPF
             {
                 lastDayIn = row[24].ToString();
             }
+            //get number of subjects
             dummyRow["FirstName"] = firstName;
             dummyRow["LastName"] = lastName;
             dummyRow["InTime"] = DateTime.Now.ToString("t");
             dummyRow["Duration"] = "00:00:00";
             dummyRow["LastDay"] = lastDayIn;
             dummyRow["Barcode"] = barcode;
+            dummyRow["#Subjects"] = subjects;
             
             string tempRange = "Sheet1!A1:Z";
             values = getSpreadsheetInfo(spreadsheetId2, tempRange);
@@ -435,7 +431,7 @@ namespace KumIn_WPF
             if (lastName != null && firstName != null)
             {
                 range = "Sheet1!A" + rowNum.ToString() + ":Z" + rowNum.ToString();
-                tempRange  = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
+                tempRange = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
 
                 IList<IList<Object>> getValues = getSpreadsheetInfo(spreadsheetId, range);
 
@@ -448,7 +444,6 @@ namespace KumIn_WPF
                 }
 
                 updateSpreadsheetInfo(oblist, spreadsheetId2, tempRange);
-
 
                 // inputs timeIn into temp spreadsheet
                 String range3 = "Sheet1!J" + pasteRowNum.ToString();
@@ -468,9 +463,7 @@ namespace KumIn_WPF
 
             List<Object> today = new List<object>() { DateTime.Now.ToString("MM/dd") };
             updateSpreadsheetInfo(today, spreadsheetId, "I" + rowNum);
-        }
-
-
+        }        
         private void sendHomeworkEmail()
         {
             try
@@ -483,7 +476,6 @@ namespace KumIn_WPF
                 string firstName = (drv["FirstName"]).ToString();
                 string lastName = (drv["LastName"]).ToString();
                 string email = "";
-                string range = "";
                 string spreadsheetId = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";
                 /*
                 var user = (from u in db.FStudentTables
@@ -495,7 +487,6 @@ namespace KumIn_WPF
                 int rowNum = 1;
                 if (values != null && values.Count > 0)
                 {                  
-
                     foreach (var row in values)
                     {
                         if (drv["FirstName"].ToString() == row[5].ToString()
@@ -507,7 +498,6 @@ namespace KumIn_WPF
                             rowNum++;
                     }
                 }
-
 
                 var myRow = values[rowNum - 1];
 
@@ -627,7 +617,6 @@ namespace KumIn_WPF
                     SmtpServer.Send(mail1);
                 }
                 /*
-
                 if (user.Carrier2 == "Verizon")
                 {
                     carrierString2 = "@vtext.com";
@@ -656,27 +645,19 @@ namespace KumIn_WPF
                            , "letmeout");
                     SmtpServer.EnableSsl = true;
                     SmtpServer.Send(mail2);
-                }
-                
-
-                MessageBox.Show("Text(s) sent","Success");
-                
+                }               
+                MessageBox.Show("Text(s) sent","Success");                
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString(), "Error");
             }
-        }
-
-                
-
+        }              
         private void btnAddNewStudent_Click(object sender, RoutedEventArgs e)
         {
             AssignWork myAssignWork = new AssignWork();
             myAssignWork.Show();
         }
-
-
         private IList<IList<Object>> getSpreadsheetInfo (string spreadsheetId, string range)
         {
             UserCredential credential;

@@ -1,4 +1,5 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿// FIX RANGES FOR ASSIGNMENT RECORD -  ADDED NEW COLUMN
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Services;
@@ -20,7 +21,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Printing;
-
 namespace KumIn_WPF
 {
     /// <summary>
