@@ -350,7 +350,7 @@ namespace KumIn_WPF
             string barcode = "";
 
 
-            IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "Sheet1!A1:I");
+            IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "DB-Master!A1:AI");
             int rowNum = 1;
 
             if (values != null && values.Count > 0)
@@ -366,13 +366,13 @@ namespace KumIn_WPF
                             if (row[1].ToString().ToUpper() == checkValues[1].ToUpper()
                             && row[0].ToString().ToUpper() == checkValues[2].ToUpper())
                             {
-                                range = "Sheet1!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
+                                range = "DB-Master!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
                                 break; // additional autherntiacation
                             }
                         }
                         else
                         {
-                            range = "Sheet1!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
+                            range = "DB-Master!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
                             break;
                         }
                     }
@@ -388,20 +388,38 @@ namespace KumIn_WPF
             {
                 lastName = row[7].ToString();
                 firstName = row[5].ToString();
-                lastDayIn = row[8].ToString(); //check
-                barcode = row[4].ToString(); // check             
+                barcode = row[4].ToString();           
             }
-
+            //get rowNum from Assignment Record spreadsheet
+            IList<IList<Object>> values2 = getSpreadsheetInfo(spreadsheetId2, "Test!A1:B");
+            int rowNum2 = 1;
+            string range2 = "";
+            foreach (var row in values2)
+            {
+                if (row[1].ToString() == firstName && row[0].ToString() == lastName)
+                {
+                    range2 = "Test!A" + rowNum2.ToString() + ":" + "AAA" + rowNum2.ToString();
+                    break;
+                }
+                else
+                {
+                    rowNum2++;
+                }
+            }
+            values2 = getSpreadsheetInfo(spreadsheetId2, range2);
+            foreach (var row in values2)
+            {
+                lastDayIn = row[24].ToString();
+            }
             dummyRow["FirstName"] = firstName;
             dummyRow["LastName"] = lastName;
             dummyRow["InTime"] = DateTime.Now.ToString("t");
             dummyRow["Duration"] = "00:00:00";
             dummyRow["LastDay"] = lastDayIn;
             dummyRow["Barcode"] = barcode;
-
-
-            string range2 = "Sheet1!A1:Z1000";
-            values = getSpreadsheetInfo(spreadsheetId2, range2);
+            
+            string tempRange = "Sheet1!A1:Z";
+            values = getSpreadsheetInfo(spreadsheetId2, tempRange);
 
             int pasteRowNum = 1;
             foreach (var row in values)
@@ -417,7 +435,7 @@ namespace KumIn_WPF
             if (lastName != null && firstName != null)
             {
                 range = "Sheet1!A" + rowNum.ToString() + ":Z" + rowNum.ToString();
-                range2 = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
+                tempRange  = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
 
                 IList<IList<Object>> getValues = getSpreadsheetInfo(spreadsheetId, range);
 
@@ -429,7 +447,7 @@ namespace KumIn_WPF
                         oblist.Add(row[i]);
                 }
 
-                updateSpreadsheetInfo(oblist, spreadsheetId2, range2);
+                updateSpreadsheetInfo(oblist, spreadsheetId2, tempRange);
 
 
                 // inputs timeIn into temp spreadsheet
@@ -466,23 +484,22 @@ namespace KumIn_WPF
                 string lastName = (drv["LastName"]).ToString();
                 string email = "";
                 string range = "";
-                string spreadsheetId = "1KmeqPF07jnjZJ_FwWgZ4taj9N3c-3HK7qvOJmG1TpWs";
+                string spreadsheetId = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";
                 /*
                 var user = (from u in db.FStudentTables
                             where u.FirstName == firstName && u.LastName == lastName
                             select u).FirstOrDefault();
                             */
 
-                IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "Sheet1!A1:J");
+                IList<IList<Object>> values = getSpreadsheetInfo(spreadsheetId, "DB-Master!A1:AI");
                 int rowNum = 1;
                 if (values != null && values.Count > 0)
-                {
-                    
+                {                  
 
                     foreach (var row in values)
                     {
-                        if (drv["FirstName"].ToString() == row[1].ToString()
-                        && drv["LastName"].ToString() == row[0].ToString())
+                        if (drv["FirstName"].ToString() == row[5].ToString()
+                        && drv["LastName"].ToString() == row[7].ToString())
                         {
                             break;
                         }
@@ -494,13 +511,19 @@ namespace KumIn_WPF
 
                 var myRow = values[rowNum - 1];
 
-                email = myRow[3].ToString();
+                email = myRow[15].ToString();
 
                 mail.From = new MailAddress("anthonyluukumon@gmail.com");
                 mail.To.Add(email); // reg email
                 mail.Subject = "Kumon HW notification";
-                mail.Body = "Your student has not completed all of the homework assigned since last Kumon session.";
-
+                mail.Body = "Dear KUMON Parents,\n Your child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
+                "attended center session today and turned in " + drv["#Completed"].ToString() +
+                " assignment(s). We are still missing " + drv["#Missing"].ToString() + 
+                " of his/her assignment(s).\n Per " +
+                "your request, this automated message is sent to notify you of the " +
+                "missing homework. Although it's common that students will miss an assignment " +
+                "from time to time due to various activities, we hope these notifications will " +
+                "help you identify whether your child is chronically missing homework. \n Regards, \n KUMON San Ramon North \n 925-318-1628";
                 SmtpServer.Port = 587;
                 SmtpServer.Credentials = new System.Net.NetworkCredential("anthonyluukumon@gmail.com"
                     , "letmeout");
@@ -539,13 +562,13 @@ namespace KumIn_WPF
                             select u).FirstOrDefault();                                                          
                 */
                 
-                IList<IList<Object>>values = getSpreadsheetInfo("1KmeqPF07jnjZJ_FwWgZ4taj9N3c-3HK7qvOJmG1TpWs", "Sheet1!A1:J");
+                IList<IList<Object>>values = getSpreadsheetInfo("1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM", "DB-Master!A1:AI");
 
                 int rowNum = 1;
                 foreach (var row in values)
                 {
-                    if (drv["FirstName"].ToString() == row[1].ToString()
-                        && drv["LastName"].ToString() == row[0].ToString())
+                    if (drv["FirstName"].ToString() == row[5].ToString()
+                        && drv["LastName"].ToString() == row[7].ToString())
                         break;
                     else
                         rowNum++;
@@ -553,10 +576,10 @@ namespace KumIn_WPF
 
                 var myRow = values[rowNum - 1];
 
-                phone1 = myRow[4].ToString();
-                carrier1 = myRow[5].ToString();
-                phone2 = myRow[6].ToString();
-                carrier2 = myRow[7].ToString();
+                phone1 = myRow[11].ToString();
+                carrier1 = myRow[12].ToString();
+                phone2 = myRow[17].ToString();
+                carrier2 = myRow[18].ToString();
 
                 if (carrier1 == "Verizon")
                 {
