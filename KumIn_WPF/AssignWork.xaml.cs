@@ -35,6 +35,7 @@ namespace KumIn_WPF
         private string pattern = "";
         private string subject = "";
 
+
         public AssignWork()
         {
             InitializeComponent();
@@ -45,6 +46,58 @@ namespace KumIn_WPF
             dt.Columns.Add("Completed");
             dt.Columns.Add("Level");
             dt.Columns.Add("Sheet#");
+
+            this.dgdFormat.CellEditEnding += new EventHandler
+                <DataGridCellEditEndingEventArgs>(dgdFormat_CellEditEnding);
+        }
+
+        private void dgdFormat_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            int rowIndex = ((DataGrid)sender).ItemContainerGenerator.IndexFromContainer(e.Row);
+
+            if (e.Column.SortMemberPath.Equals("Level"))
+            {
+                // enter this level++ for subsequent rows
+                KumonLevel nextLevel = new KumonLevel(Subject, ((TextBox)e.EditingElement).Text);
+
+                for (int i = rowIndex; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i]["Level"] = nextLevel.Level;
+                }
+            }
+            else if (e.Column.SortMemberPath.Equals("Sheet#"))
+            {
+                int currentSheet = int.Parse(txtStartPage.Text);
+
+                for (int i = 0; i < rowIndex; i++)
+                {
+                    currentSheet = calculateNextSheet(Pattern, currentSheet);
+                }
+
+                // if C, enter corrections and start next row
+                if (((TextBox)e.EditingElement).Text == "C")
+                {
+                    dt.Rows[rowIndex]["Sheet#"] = "Corrections Only";
+                    rowIndex++;
+                }
+
+                // if end page - start page != expected pattern ==> change patern
+                string[] pages = ((TextBox)e.EditingElement).Text.Split('-');
+                int startPage = int.Parse(pages[0]);
+                int endPage = int.Parse(pages[1]);
+
+                string newPattern = getNewPattern(startPage, endPage);
+
+                for (int i = rowIndex; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i]["Sheet#"] = currentSheet.ToString() + "-" 
+                        + calculateNextSheet(newPattern, currentSheet);
+
+                }
+
+
+                // start next sheet same pattern next rows
+            }
         }
 
         private void btnPrintRecord_Click(object sender, RoutedEventArgs e)
@@ -327,48 +380,7 @@ namespace KumIn_WPF
 
                         myRow["Level"] = level.Level;
 
-                        switch (Pattern)
-                        {
-                            case "5-5":
-                                nextSheet = sheet + 5;
-                                break;
-                            case "4-3-3":
-                                switch(sheet % 10)
-                                {
-                                    case 1:
-                                        nextSheet = sheet + 4;
-                                        break;
-                                    default:
-                                        nextSheet = sheet + 3;
-                                        break;
-                                }
-                                break;
-                            case "3-2":
-                                switch(sheet % 5)
-                                {
-                                    case 1:
-                                        nextSheet = sheet + 3;
-                                        break;
-                                    default:
-                                        nextSheet = sheet + 2;
-                                        break;
-                                }
-                                break;
-                            case "10-10":
-                                nextSheet = sheet + 10;
-                                break;
-                            case "20-20":
-                                nextSheet = sheet + 20;
-                                break;
-                            case "2-2":
-                                nextSheet = sheet + 2;
-                                break;
-                            default:
-                                break;
-
-                        }
-                        
-
+                        nextSheet = calculateNextSheet(Pattern, sheet);
 
                         myRow["Sheet#"] = sheet.ToString() + "-" + (nextSheet - 1).ToString();
 
@@ -537,6 +549,84 @@ namespace KumIn_WPF
         private void txtStartPage_TextChanged(object sender, TextChangedEventArgs e)
         {
             updateData();
+        }
+
+        private int calculateNextSheet(string pattern, int currentSheet)
+        {
+            int nextSheet = currentSheet;
+
+            switch (pattern)
+            {
+                case "5-5":
+                    nextSheet = currentSheet + 5;
+                    break;
+                case "4-3-3":
+                    switch (currentSheet % 10)
+                    {
+                        case 1:
+                            nextSheet = currentSheet + 4;
+                            break;
+                        default:
+                            nextSheet = currentSheet + 3;
+                            break;
+                    }
+                    break;
+                case "3-2":
+                    switch (currentSheet % 5)
+                    {
+                        case 1:
+                            nextSheet = currentSheet + 3;
+                            break;
+                        default:
+                            nextSheet = currentSheet + 2;
+                            break;
+                    }
+                    break;
+                case "10-10":
+                    nextSheet = currentSheet + 10;
+                    break;
+                case "20-20":
+                    nextSheet = currentSheet + 20;
+                    break;
+                case "2-2":
+                    nextSheet = currentSheet + 2;
+                    break;
+                default:
+                    break;
+            }
+
+            return nextSheet;
+        }
+
+        private string getNewPattern(int startPage, int endPage)
+        {
+
+            switch(endPage - startPage + 1)
+            {
+                case 10:
+                    return "10-10";
+                case 20:
+                    return "20-20";
+                case 5:
+                    return "5-5";
+                case 4:
+                    return "4-3-3";
+                case 3:
+                    if (startPage % 10 == 1 || startPage % 10 == 6)
+                        return "3-2";
+                    else
+                        return "4-3-3";
+                case 2:
+                    if (startPage % 10 == 4 || startPage % 10 == 9)
+                        return "3-2";
+                    else
+                        return "2-2";
+                default:
+                    break;
+            }
+
+            return Pattern;
+
         }
 
         public string DayOff

@@ -51,7 +51,7 @@
                 <DataGridTextColumn Binding="{Binding Assigned}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Assigned:" Width="65" FontFamily="Lucida Sans" FontSize="18"/>
                 <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Completed:" Width="75" FontSize="20"/>
                 <DataGridTextColumn Binding="{Binding Level }" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Level:" Width="50" FontSize="25"/>
-                <DataGridTextColumn Binding="{Binding Sheet#}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Sheet #:" Width="120" FontSize="25"/>
+                <DataGridTextColumn Binding="{Binding Sheet#}"  CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Sheet #:" Width="120" FontSize="25"/>
             </DataGrid.Columns>
         </DataGrid>
         <Label x:Name="lblSubject" HorizontalContentAlignment="Center" Content="Subject:" HorizontalAlignment="Left" Margin="365,128,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
