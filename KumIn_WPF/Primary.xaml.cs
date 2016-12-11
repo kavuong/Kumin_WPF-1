@@ -106,7 +106,7 @@ namespace KumIn_WPF
                         // Update cell values
                         List<Object> oblist = new List<object> { row[5].ToString(), row[6].ToString() };
                         updateSpreadsheetInfo(oblist, "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"
-                            , "Sheet1!K" + rowNum.ToString() + ":L" + rowNum.ToString());
+                            , "Sheet1!J" + rowNum.ToString() + ":K" + rowNum.ToString());
                     }
                 }
             }
@@ -125,6 +125,7 @@ namespace KumIn_WPF
                             char[] delimiterChars = { ':', ' ' };
                             dummyRow["FirstName"] = row[1];
                             dummyRow["LastName"] = row[0];
+                            dummyRow["Barcode"] = row[2];
                             /*
                             string[] inTime = (row[9].ToString()).Split(delimiterChars);
                             MessageBox.Show(Convert.ToString(inTime.Length));
@@ -133,6 +134,7 @@ namespace KumIn_WPF
                             TimeSpan result = DateTime.Now - duration;   
                             */
                             dummyRow["InTime"] = row[11];
+                            dummyRow["#Subjects"] = row[12];
 
                             TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now)).Subtract(DateTime.Parse(Convert.ToString(row[11])));
                             dummyRow["Duration"] = duration.ToString(@"hh\:mm");
@@ -167,9 +169,9 @@ namespace KumIn_WPF
                 if (myConfirm.ShowDialog() == true)
                 {
                     // Populate display after checking firstname, lastname, number
-                    if (!isSignedIn(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName }))
+                    if (!isSignedIn(new string[3] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName }))
                     {
-                        populateDataGrid(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
+                        populateDataGrid(new string[3] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
                     }
                     else // confirm signout then do it
                     {
@@ -184,12 +186,12 @@ namespace KumIn_WPF
                         DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[rowNum]["TimeIn"].ToString());
                         if (DateTime.Now - timeIn > new TimeSpan(0, 1, 0))
                         {
-                            signOut(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
+                            signOut(new string[3] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
                         }
                         else if (MessageBox.Show("Student was recently signed in, sign out already?"
                             , "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
-                            signOut(new string[3] { myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
+                            signOut(new string[3] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
                         }
                     }
                     // Throw error if not found.
@@ -199,9 +201,9 @@ namespace KumIn_WPF
             else
             {
                 // Populate display after checking barcode
-                if (!isSignedIn(new string[1] { txtUpdate.Text.Substring(1) }))
+                if (!isSignedIn(new string[1] { txtUpdate.Text }))
                 {
-                    populateDataGrid(new string[1] { txtUpdate.Text.Substring(1) });
+                    populateDataGrid(new string[1] { txtUpdate.Text });
                 }
                 else // confirm signout then do it
                 {
@@ -213,15 +215,15 @@ namespace KumIn_WPF
                         else
                             rowNum++;
                     }
-                    DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[rowNum]["TimeIn"].ToString());
+                    DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[rowNum]["InTime"].ToString());
                     if (DateTime.Now - timeIn > new TimeSpan(0,1,0))
                     {
-                        signOut(new string[1] { txtUpdate.Text.Substring(1) });
+                        signOut(new string[1] { txtUpdate.Text });
                     }
                     else if (MessageBox.Show("Student was recently signed in, sign out already?"
                         , "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        signOut(new string[1] { txtUpdate.Text.Substring(1) });
+                        signOut(new string[1] { txtUpdate.Text });
                     }
                 }                
             }            
@@ -276,7 +278,7 @@ namespace KumIn_WPF
             // Scanner works? checkvalues.count == 1.
 
             string tempSheet = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
-            string range = "Sheet1!A1:L";
+            string range = "Sheet1!A1:M";
 
             IList<IList<Object>> getStudents = getSpreadsheetInfo(tempSheet, range);
             int rowNum = 1;
@@ -305,18 +307,18 @@ namespace KumIn_WPF
             }
 
             List<Object> pasteRange = new List<object>() { };
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 13; i++)
                 pasteRange.Add(getStudents[rowNum - 1][i]);
-            TimeSpan duration = DateTime.Now.Subtract(Convert.ToDateTime(getStudents[rowNum - 1][9]));
+            TimeSpan duration = DateTime.Now.Subtract(Convert.ToDateTime(getStudents[rowNum - 1][11]));
 
             pasteRange.Add((duration).ToString(@"hh\:mm"));
 
             List<Object> deleteRow = new List<object>();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 13; i++)
                 deleteRow.Add("");
 
-            range = "Sheet1!A" + rowNum.ToString() + ":J" + rowNum.ToString();
+            range = "Sheet1!A" + rowNum.ToString() + ":M" + rowNum.ToString();
             updateSpreadsheetInfo(deleteRow, tempSheet, range);
 
             // Transfer row to permanent record
@@ -388,11 +390,11 @@ namespace KumIn_WPF
                 lastName = row[7].ToString();
                 firstName = row[5].ToString();
                 barcode = row[3].ToString();
-                realEmail = row[15].ToString();
-                phone1 = row[11].ToString();
-                carrier1 = row[12].ToString();
-                phone2 = row[17].ToString();
-                carrier2 = row[18].ToString();
+                realEmail = row[13].ToString();
+                phone1 = row[9].ToString();
+                carrier1 = row[10].ToString();
+                phone2 = row[15].ToString();
+                carrier2 = row[16].ToString();
                 subjectsArray = (row[2].ToString()).Split(',');
                 if (subjectsArray.Length == 1)
                     subjects = 1;
@@ -412,6 +414,7 @@ namespace KumIn_WPF
                 oblist.Add(" ");                     // Completed
                 oblist.Add(" ");                     // Missing
                 oblist.Add(DateTime.Now.ToString("t"));
+                oblist.Add(subjects.ToString());
             }
 
             // Find paste row num
@@ -428,18 +431,18 @@ namespace KumIn_WPF
             tempRange = "Sheet1!A" + pasteRowNum.ToString() + ":Z" + pasteRowNum.ToString();
             updateSpreadsheetInfo(oblist, spreadsheetId2, tempRange);
 
+            int rowNum2 = 1;
             // edit this to pull appropriate valued from database into temp and record sheet columns
             if (lastName != null && firstName != null)
             {                
                 //get rowNum from Assignment Record spreadsheet
                 IList<IList<Object>> values2 = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", "Test!B1:C");
-                int rowNum2 = 1;
                 string assignmentRecordRange = "";
                 foreach (var row in values2)
                 {
                     if (row[1].ToString() == firstName && row[0].ToString() == lastName)
                     {
-                        assignmentRecordRange = "Test!B" + rowNum2.ToString() + ":" + "AAA" + rowNum2.ToString();
+                        assignmentRecordRange = "Test!A" + rowNum2.ToString() + ":" + "AAA" + rowNum2.ToString();
                         break;
                     }
                     else
@@ -448,10 +451,16 @@ namespace KumIn_WPF
                     }
                 }
                 values2 = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", assignmentRecordRange);
+
                 foreach (var row in values2)
                 {
-                    lastDayIn = row[6].ToString();
+                    lastDayIn = row[7].ToString();
                 }
+
+                // Paste Last Day In to temp sheet
+                List<Object> lastDay = new List<object>() { lastDayIn };
+                updateSpreadsheetInfo(lastDay, spreadsheetId2, "Sheet1!I" + pasteRowNum.ToString());
+
                 //get number of subjects
                 dummyRow["FirstName"] = firstName;
                 dummyRow["LastName"] = lastName;
@@ -467,8 +476,9 @@ namespace KumIn_WPF
             txtUpdate.Clear();
             txtUpdate.Focus();
 
+            // Set new last day in to today in assignmentrecord
             List<Object> today = new List<object>() { DateTime.Now.ToString("MM/dd") };
-            updateSpreadsheetInfo(today, spreadsheetId, "I" + rowNum);
+            updateSpreadsheetInfo(today, "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", "H" + rowNum2);
         }        
         private void sendHomeworkEmail()
         {
