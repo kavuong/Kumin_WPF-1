@@ -1,4 +1,10 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿/* 
+When the window is constructed, all the columns are added to the DataTable. 
+The myTimerTick function is configured to run every 15 seconds. Checks if
+the current date is in the Attendance Record spreadsheet already, if not, 
+the current date is appended to serve as delimiter for record of signins.
+*/
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Services;
@@ -24,6 +30,9 @@ using System.Globalization;
 using System.Net;
 using System.Net.Mail;
 
+// TRY CATCH STATEMENTS
+// IF CONDITIONAL YES (notifcations)
+// Change font # completed column
 namespace KumIn_WPF
 {
     /// <summary>
@@ -33,8 +42,31 @@ namespace KumIn_WPF
     {
         DateTime timeNow = DateTime.Now;
         DataTable dummyTable = new DataTable();
-        static string[] Scopes = { SheetsService.Scope.Spreadsheets };
-        static string ApplicationName = "Google Sheets API KumIn";
+        SpreadsheetConnection kuminConnection = new SpreadsheetConnection();
+
+        // Constants
+        public const int TIMER_CYCLE = 15;                                      // seconds
+        public const string ATTENDANCE_SHEET = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
+
+        public const string ATTENDANCE_SHEET_PERM_RECORD = "Record";
+        public const string ATTENDANCE_SHEET_TEMP_RECORD = "Sheet1";
+
+
+        // Column Indexes
+        public const int DATAGRID_FIRSTNAME = 0;
+        public const int DATAGRID_LASTNAME = 1;
+        public const int DATAGRID_COMPLETED = 5;
+        public const int DATAGRID_MISSING = 6;
+
+        public const int TEMPSHEET_FIRSTNAME = 1;
+        public const int TEMPSHEET_LASTNAME = 0;
+        public const int TEMPSHEET_BARCODE = 2;
+        public const int TEMPSHEET_INTIME = 11;
+        public const int TEMPSHEET_SUBJECTS = 12;
+        public const int TEMPSHEET_LASTDAY = 8;
+        public const int TEMPSHEET_COMPLETED = 9;
+        public const int TEMPSHEET_MISSING = 10;
+
         public Primary()
         {
             InitializeComponent();
@@ -49,39 +81,47 @@ namespace KumIn_WPF
             dummyTable.Columns.Add("Barcode");
             dummyTable.Columns.Add("#Subjects");
 
-            lblTime.Content = timeNow.ToString("f");
+            TimeLabel = timeNow.ToString("f");
 
+            
             DispatcherTimer myTimer = new DispatcherTimer();
-            myTimer.Interval = new TimeSpan(0, 0, 15);
+            myTimer.Interval = new TimeSpan(0, 0, TIMER_CYCLE);
             myTimer.Tick += new EventHandler(myTimer_Tick);
             myTimer.Start();
 
-            string spreadsheetId = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
-            string range = "Record!A1:A";
-            IList<IList<Object>> checkValues = getSpreadsheetInfo(spreadsheetId, range);
+            string centerDates = ATTENDANCE_SHEET_PERM_RECORD + "!A1:A";
 
-            bool flag = false;
-            foreach (var row in checkValues)
-            {
-                if (row[0].ToString() == DateTime.Now.ToString("MM/dd/yyyy"))
-                {
-                    flag = true;
-                    break;
-                }
-            }
-
-            if (!flag)
+            if (!kuminConnection.isValuePresent(ATTENDANCE_SHEET, centerDates, DateTime.Now.ToString("MM/dd/yyyy"))) ;
             {
                 List<Object> date = new List<object>() { DateTime.Now.ToString("MM/dd/yyyy") };
-                appendSpreadsheetInfo(date, spreadsheetId, range);
+                kuminConnection.append(date, ATTENDANCE_SHEET, centerDates);
             }
         }
+
+
+
+
+
+
+
+
+        //*****************************************************************************************************
+        // Definition of myTimer_Tick()
+        // Transfers the DataGrid data to a new DataTable object. Checks if the data table is not null and 
+        // if the completed and missing column values are filled out for a given row in the data table. 
+        // Then, it gets the values in the completed and missing homework columns of that DataTable row and 
+        // updates the temporary attendance sheet at the temporary spreadsheet row number matching the record 
+        // of the student in the temporary sheet.
+        // Populates the columns of the DataTable from the temporary sheet values. 
         private void myTimer_Tick(object sender, object e)
         {
             timeNow = DateTime.Now;
-            lblTime.Content = timeNow.ToString("f");
+            TimeLabel = timeNow.ToString("f");
+            string tempSheet = ATTENDANCE_SHEET_TEMP_RECORD + "!A1:Z";
+            IList<IList<Object>> tempSheetValues = kuminConnection.get(ATTENDANCE_SHEET, tempSheet);
 
-            // update temp sheet with #completed and #missing            
+
+
             if (dummyTable.Rows.Count != 0)
             {
                 DataTable dt = new DataTable();
@@ -90,64 +130,57 @@ namespace KumIn_WPF
 
                 foreach (DataRow row in dt.Rows)
                 {
-                    if (row[5].ToString() != "" && row[6].ToString() != "")
+                    if (row[DATAGRID_COMPLETED].ToString() != "" && row[DATAGRID_MISSING].ToString() != "")
                     {
-                        // Get rowNum
-                        IList<IList<Object>> column = getSpreadsheetInfo("14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk", "Sheet1!A1:B");
-                        int rowNum = 1;
-                        foreach (var cell in column)
-                        {
-                            if (cell[0].ToString() == row[1].ToString() && cell[1].ToString() == row[0].ToString())
-                                break;
-                            else
-                                rowNum++;
-                        }
+                        int rowNum;
+                        string firstNames = ATTENDANCE_SHEET_TEMP_RECORD + "!B1:B";
+                        string lastNames = ATTENDANCE_SHEET_TEMP_RECORD + "!A1:A";
+                        string studentRow;
+                        List<Object> studentAssignmentEval = new List<object>
+                            { row[DATAGRID_COMPLETED].ToString(), row[DATAGRID_MISSING].ToString() };
 
-                        // Update cell values
-                        List<Object> oblist = new List<object> { row[5].ToString(), row[6].ToString() };
-                        updateSpreadsheetInfo(oblist, "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk"
-                            , "Sheet1!J" + rowNum.ToString() + ":K" + rowNum.ToString());
+
+                        rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, lastNames
+                            , row[DATAGRID_LASTNAME].ToString(), firstNames, row[DATAGRID_FIRSTNAME].ToString());
+
+                        studentRow = ATTENDANCE_SHEET_TEMP_RECORD + "!J" + rowNum.ToString() 
+                            + ":K" + rowNum.ToString();
+
+                        kuminConnection.update(studentAssignmentEval, ATTENDANCE_SHEET, studentRow);
                     }
                 }
             }
-            IList<IList<Object>> values = getSpreadsheetInfo("14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk", "Sheet1!A1:Z");
 
-            if (values != null && values.Count > 0)
+
+            
+
+            if (tempSheetValues != null && tempSheetValues.Count > 0)
             {
                 dummyTable.Clear();
-                foreach (var row in values)
-                {                    
-                    if (row.Count != 1)
-                    {
-                        if (row != values[0] && row.Count != 0)
-                        {
-                            DataRow dummyRow = dummyTable.NewRow();
-                            char[] delimiterChars = { ':', ' ' };
-                            dummyRow["FirstName"] = row[1];
-                            dummyRow["LastName"] = row[0];
-                            dummyRow["Barcode"] = row[2];
-                            /*
-                            string[] inTime = (row[9].ToString()).Split(delimiterChars);
-                            MessageBox.Show(Convert.ToString(inTime.Length));
-                            dummyRow["InTime"] = Convert.ToString(inTime[0]) + Convert.ToString(inTime[1]);
-                            DateTime duration = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, Convert.ToInt32(inTime[0]), Convert.ToInt32(inTime[1]), 0, 0);
-                            TimeSpan result = DateTime.Now - duration;   
-                            */
-                            dummyRow["InTime"] = row[11];
-                            dummyRow["#Subjects"] = row[12];
+                for (int i = 1; i < tempSheetValues.Count; i++)
+                {
+                    IList<Object> studentIn = tempSheetValues[i];
+                    DataRow dummyRow = dummyTable.NewRow();
+                    TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now))
+                        .Subtract(DateTime.Parse(Convert.ToString(studentIn[TEMPSHEET_INTIME])));
 
-                            TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now)).Subtract(DateTime.Parse(Convert.ToString(row[11])));
-                            dummyRow["Duration"] = duration.ToString(@"hh\:mm");
-                            dummyRow["LastDay"] = row[8];
+                    dummyRow["FirstName"] = studentIn[TEMPSHEET_FIRSTNAME];
+                    dummyRow["LastName"] = studentIn[TEMPSHEET_LASTNAME];
+                    dummyRow["Barcode"] = studentIn[TEMPSHEET_BARCODE];
 
-                            dummyRow["#Completed"] = row[9];
-                            dummyRow["#Missing"] = row[10];                            
+                    dummyRow["InTime"] = studentIn[TEMPSHEET_INTIME];
+                    dummyRow["#Subjects"] = studentIn[TEMPSHEET_SUBJECTS];
 
-                            dgdListing.ItemsSource = dummyTable.DefaultView;
-                            dummyTable.DefaultView.Sort = "Duration DESC";
-                            dummyTable.Rows.Add(dummyRow);
-                        }
-                    }                   
+                    
+                    dummyRow["Duration"] = duration.ToString(@"hh\:mm");
+                    dummyRow["LastDay"] = studentIn[TEMPSHEET_LASTDAY];
+
+                    dummyRow["#Completed"] = studentIn[TEMPSHEET_COMPLETED];
+                    dummyRow["#Missing"] = studentIn[TEMPSHEET_MISSING];
+
+                    dgdListing.ItemsSource = dummyTable.DefaultView;
+                    dummyTable.Rows.Add(dummyRow);
+                    dummyTable.DefaultView.Sort = "Duration DESC";
                 }
             }
 
@@ -785,6 +818,13 @@ namespace KumIn_WPF
             {
                 btnUpdate_Click((object)sender, (RoutedEventArgs)e);
             }
+        }
+
+
+        public string TimeLabel
+        {
+            get { return lblTime.Content.ToString(); }
+            set { lblTime.Content = value; }
         }
     }
 }
