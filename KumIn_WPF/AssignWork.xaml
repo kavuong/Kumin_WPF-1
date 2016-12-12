@@ -68,6 +68,7 @@
         <Label x:Name="lblSubjectBig" Content="{Binding Path=Subject, ElementName=window}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Height="40" Width="175" FontFamily="Lucida Sans" FontSize="20"/>
         <Button x:Name="btnPrintRecord" Content="Print and Record" HorizontalAlignment="Left" Margin="443,398,0,0" VerticalAlignment="Top" Width="120" Height="50" Click="btnPrintRecord_Click" BorderThickness="0"/>
         <TextBox x:Name="txtLevel" HorizontalAlignment="Left" Height="24" Margin="461,218,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtLevel_TextChanged"/>
+        <CheckBox x:Name="chxCMSManip" Content="CMS Manipulation Needed" HorizontalAlignment="Left" Margin="386,352,0,0" VerticalAlignment="Top" Height="24" Width="196" FontFamily="Lucida Sans" FontSize="13" BorderThickness="1"/>
 
     </Grid>
 </Window>

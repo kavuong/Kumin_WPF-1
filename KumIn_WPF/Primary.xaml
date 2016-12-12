@@ -70,5 +70,6 @@
                 </DataGridCheckBoxColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <Button x:Name="btnCMSManip" Content="Get CMS Changes" HorizontalAlignment="Left" Margin="617,83,0,0" FontFamily="Lucida Sans" VerticalAlignment="Top" Width="112" Height="25" BorderThickness="0" Click="btnCMSManip_Click"/>
     </Grid>
 </Window>

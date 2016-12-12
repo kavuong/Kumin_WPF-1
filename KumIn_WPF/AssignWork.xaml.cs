@@ -49,6 +49,7 @@ namespace KumIn_WPF
         public const int ASSIGNSHEET_LASTDAY = 7;
         public const int ASSIGNSHEET_DAYOFF = 11;
         public const int ASSIGNSHEET_PATTERN = 10;
+        public const int ASSIGNSHEET_CMSMANIP = 12;
 
         public const int DATAGRID_ASSIGNDATE = 1;
         public const int DATAGRID_LEVEL = 3;
@@ -267,7 +268,8 @@ namespace KumIn_WPF
                         txtNumAssign.Text = row[ASSIGNSHEET_NUMASSIGN].ToString();
                         txtStartDate.Text = (today).ToString("MM/dd");
 
-                        subStringLevel = row[ASSIGNSHEET_DAYOFF + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
+                        subStringLevel = row[ASSIGNSHEET_CMSMANIP + 2 
+                            * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
                         txtLevel.Text = subStringLevel[0];
 
                         subStringPage = subStringLevel[1].Split('-');
@@ -431,6 +433,7 @@ namespace KumIn_WPF
             DataTable table = new DataTable();
             table.Columns.Add("Assigned");
             table.Columns.Add("Sheet#");
+            int j = 0;
 
             for (int i = 0; i < dgdFormat.Items.Count; i++)
             {
@@ -443,7 +446,12 @@ namespace KumIn_WPF
                 table.Rows.Add(dr);
             }
 
-            int j = 0;
+            if (chxCMSManip.IsChecked.Value)
+                dateAssign[j] = "CMS";
+            else
+                dateAssign[j] = "";
+
+            j = 1;
             foreach (DataRowView row in table.DefaultView)
             {
                 dateAssign[j] = row["Assigned"].ToString();
@@ -451,6 +459,8 @@ namespace KumIn_WPF
 
                 j += 2;
             }
+
+            
 
             return dateAssign;
         }

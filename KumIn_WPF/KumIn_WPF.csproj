@@ -101,8 +101,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CMSManip.xaml.cs">
+      <DependentUpon>CMSManip.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SpreadsheetConnection.cs" />
     <Page Include="AssignWork.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CMSManip.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -831,5 +831,10 @@ namespace KumIn_WPF
             get { return lblTime.Content.ToString(); }
             set { lblTime.Content = value; }
         }
+
+        private void btnCMSManip_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
