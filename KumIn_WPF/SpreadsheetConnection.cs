@@ -211,6 +211,7 @@ namespace KumIn_WPF
 
             for (int i = 0; i < column1.Count; i++)
             {
+
                 if (column1[i].Count != 0 && column2[i].Count != 0)                         // Unhandled exception b/c of holes
                 {
                     if (column1[i][0].ToString() == value1 && column2[i][0].ToString() == value2)

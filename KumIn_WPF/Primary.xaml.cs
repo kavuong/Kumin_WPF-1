@@ -4,11 +4,6 @@ The myTimerTick function is configured to run every 15 seconds. Checks if
 the current date is in the Attendance Record spreadsheet already, if not, 
 the current date is appended to serve as delimiter for record of signins.
 */
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using Google.Apis.Services;
-using Google.Apis.Util.Store;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -128,7 +123,8 @@ namespace KumIn_WPF
 
             string centerDates = ATTENDANCE_SHEET_PERM_RECORD + "!A1:A";
 
-            if (!kuminConnection.isValuePresent(ATTENDANCE_SHEET, centerDates, DateTime.Now.ToString("MM/dd/yyyy")))
+
+            if (!kuminConnection.isValuePresent(ATTENDANCE_SHEET, centerDates, DateTime.Now.ToString("MM/dd/yyyy"))) 
             {
                 List<Object> date = new List<object>() { DateTime.Now.ToString("MM/dd/yyyy") };
                 kuminConnection.append(date, ATTENDANCE_SHEET, centerDates);
