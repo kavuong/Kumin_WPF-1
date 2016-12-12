@@ -1,9 +1,9 @@
-﻿// FIX RANGES FOR ASSIGNMENT RECORD -  ADDED NEW COLUMN
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using Google.Apis.Services;
-using Google.Apis.Util.Store;
+﻿
+/*
+When this window is constructed, a datatable is created with columns.
+*/
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +21,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Printing;
+
+
+
 namespace KumIn_WPF
 {
     /// <summary>
@@ -28,12 +31,28 @@ namespace KumIn_WPF
     /// </summary>
     public partial class AssignWork : Window
     {
-        static string[] Scopes = { SheetsService.Scope.Spreadsheets };
-        static string ApplicationName = "Google Sheets API KumIn";
         DataTable dt = new DataTable();
+        SpreadsheetConnection assignConnection = new SpreadsheetConnection();
         private string dayOff = "";
         private string pattern = "";
         private string subject = "";
+
+        // Constants
+        public const string ASSIGNMENT_SHEET = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
+
+        public const string ASSIGNMENT_SHEET_RECORD = "Test";
+
+        public const int ASSIGNSHEET_FIRSTNAME = 2;
+        public const int ASSIGNSHEET_LASTNAME = 1;
+        public const int ASSIGNSHEET_SUBJECT = 4;
+        public const int ASSIGNSHEET_NUMASSIGN = 9;
+        public const int ASSIGNSHEET_LASTDAY = 7;
+        public const int ASSIGNSHEET_DAYOFF = 11;
+        public const int ASSIGNSHEET_PATTERN = 10;
+
+        public const int DATAGRID_ASSIGNDATE = 1;
+        public const int DATAGRID_LEVEL = 3;
+        public const int DATAGRID_PAGES = 4;
 
 
         public AssignWork()
@@ -51,133 +70,194 @@ namespace KumIn_WPF
                 <DataGridCellEditEndingEventArgs>(dgdFormat_CellEditEnding);
         }
 
+
+
+
+
+
+
+        //************************************************************************************
+        // Definition of event handler dgdFormat_CellEditEnding()                            *
+        // This handles when the level or pages are changed inside the view. If the level is *
+        // changed, that level is continued on for the remainder of the rows. If the pages   *
+        // are changed, then the same pattern is continued on with the pages picking up from *
+        // what was left off. The underlying datatable itself is updated upon change. If     *
+        // the student has corrections only (C), pages pick up at the next row               *
+        //************************************************************************************
         private void dgdFormat_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             int rowIndex = ((DataGrid)sender).ItemContainerGenerator.IndexFromContainer(e.Row);
+            string text = ((TextBox)e.EditingElement).Text;
 
             if (e.Column.SortMemberPath.Equals("Level"))
             {
                 // enter this level++ for subsequent rows
-                KumonLevel nextLevel = new KumonLevel(Subject, ((TextBox)e.EditingElement).Text);
+                KumonLevel nextLevel = new KumonLevel(Subject, text);
 
                 for (int i = rowIndex; i < dt.Rows.Count; i++)
                 {
                     dt.Rows[i]["Level"] = nextLevel.Level;
                 }
+                dgdFormat.ItemsSource = dt.DefaultView;
             }
             else if (e.Column.SortMemberPath.Equals("Sheet#"))
             {
                 int currentSheet = int.Parse(txtStartPage.Text);
+                string[] pages = text.Split('-');
+                int startPage = int.Parse(pages[0]);
+                int endPage = int.Parse(pages[1]);
+                string newPattern = getNewPattern(startPage, endPage);
+
 
                 for (int i = 0; i < rowIndex; i++)
                 {
                     currentSheet = calculateNextSheet(Pattern, currentSheet);
                 }
 
-                // if C, enter corrections and start next row
-                if (((TextBox)e.EditingElement).Text == "C")
+                
+                if (text.ToUpper() == "C")
                 {
-                    dt.Rows[rowIndex]["Sheet#"] = "Corrections Only";
+                    dt.Rows[rowIndex]["Sheet#"] = "Corr. Only";
                     rowIndex++;
                 }
 
-                // if end page - start page != expected pattern ==> change patern
-                string[] pages = ((TextBox)e.EditingElement).Text.Split('-');
-                int startPage = int.Parse(pages[0]);
-                int endPage = int.Parse(pages[1]);
-
-                string newPattern = getNewPattern(startPage, endPage);
 
                 for (int i = rowIndex; i < dt.Rows.Count; i++)
                 {
-                    dt.Rows[i]["Sheet#"] = currentSheet.ToString() + "-" 
-                        + calculateNextSheet(newPattern, currentSheet);
+                    int nextSheet = calculateNextSheet(newPattern, currentSheet);
+
+                    dt.Rows[i]["Sheet#"] = currentSheet.ToString() + "-"
+                        + (nextSheet - 1).ToString();
+
+                    currentSheet = nextSheet;
+
+                    if (currentSheet > 200)
+                        currentSheet -= 200;
 
                 }
-
-
-                // start next sheet same pattern next rows
+                dgdFormat.ItemsSource = dt.DefaultView;
             }
         }
 
+
+
+
+
+
+
+        //****************************************************************
+        // Definition of event handler btnPrintRecord_Click()            *
+        // Data is written to the spreadsheet and the grid is printed    *
+        //****************************************************************
         private void btnPrintRecord_Click(object sender, RoutedEventArgs e)
         {
             writeData(getDateAssign());
             print();
         }
+        
 
+
+
+
+
+
+        //***********************************************************
+        // Definition of event handler txtBarcode_KeyDown()         *
+        // If enter is pressed, readAndPopulate is called.          *
+        //***********************************************************
         private void txtBarcode_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
                 readAndPopulate();
         }
 
+
+
+
+
+
+
+        //*************************************************************************
+        // Definition of event handler txtNumAssign_TextChanged()                 *
+        // Data is updated in the view's grid.                                    *
+        //*************************************************************************
         private void txtNumAssign_TextChanged(object sender, TextChangedEventArgs e)
         {
             updateData();
         }
 
+
+
+
+
+
+
+        //*************************************************************************
+        // Definition of event handler txtStartDate_TextChanged()                 *
+        // Data is updated in the view's grid.                                    *
+        //*************************************************************************
         private void txtStartDate_TextChanged(object sender, TextChangedEventArgs e)
         {
             updateData();
         }
 
+
+
+
+
+
+
+        //***********************************************************************
+        // Definition of readAndPopulate()                                      *
+        // Searches through the Assignment Record spreadsheet to find the row   *
+        // that matches the entered barcode and subject. Information from here  *
+        // is populated into the fields and the dataGrid is updated to continue *
+        // on from the previous record.                                         *
+        //***********************************************************************
         private void readAndPopulate()
         {
             if (txtBarcode.Text != "" && Subject != "")
             {
                 try
                 {
+                    string barcodes = ASSIGNMENT_SHEET_RECORD + "!D1:D";
+                    string subjectColumn = ASSIGNMENT_SHEET_RECORD + "!E1:E";
+                    string sheetCells;
+                    IList<IList<Object>> sheet;
+
+                    bool found = assignConnection.isValuePresent(ASSIGNMENT_SHEET
+                        , barcodes, Barcode);
+
+                    int rowNum = assignConnection.getRowNum(ASSIGNMENT_SHEET, barcodes
+                        , Barcode, subjectColumn, Subject);
+
                     
-                    IList<IList<Object>> values = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", "Test!C1:D");
+                    sheetCells = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
+                    sheet = assignConnection.get(ASSIGNMENT_SHEET, sheetCells);
 
-                    bool found = true;
-                    string range = "";
-                    if (values != null && values.Count > 0)
+
+                    foreach (var row in sheet)
                     {
-                        int rowNum = 1;
-
-                        foreach (var row in values)
-                        {
-                            
-                            if (row[0].ToString() == txtBarcode.Text && row[1].ToString() == Subject)
-                            {
-                                range = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
-                                found = true;
-                                break;
-                            }
-                            else if (row[0].ToString() == txtBarcode.Text)
-                            {
-                                range = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
-                                found = false;
-                            }
-                            else
-                                rowNum++;
-                        }
-                    }
-
-                    values = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", range);
+                        int lastDateIndex = row.Count - 2;
+                        DateTime today = Convert.ToDateTime(row[ASSIGNSHEET_LASTDAY])
+                            + new TimeSpan(1, 0, 0, 0);
+                        string[] subStringLevel 
+                            = row[ASSIGNSHEET_DAYOFF + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
+                        string[] subStringPage = subStringLevel[1].Split('-');
 
 
-                    foreach (var row in values)
-                    {
-                        lblName.Content = row[1].ToString() + " " + row[0].ToString();
                         if (!found)
                             throw new EntryPointNotFoundException();
-                        cbxSubject.Text = row[3].ToString();
-                        txtNumAssign.Text = row[7].ToString();
 
-                        int lastDateIndex = row.Count - 2;
-                        DateTime lastDay = new DateTime(DateTime.Now.Year, int.Parse(string.Concat(row[lastDateIndex].ToString()[0]
-                                    , row[lastDateIndex].ToString()[1])), int.Parse(string.Concat(row[lastDateIndex].ToString()[3]
-                                    , row[lastDateIndex].ToString()[4]))) + new TimeSpan(1, 0, 0, 0);
-                        txtStartDate.Text = (lastDay).ToString("MM/dd");
-                        string[] subStringLevel = row[9 + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
+                        lblName.Content = row[ASSIGNSHEET_FIRSTNAME].ToString() + " "
+                            + row[ASSIGNSHEET_LASTNAME].ToString();
+                        lblSubject.Content = row[ASSIGNSHEET_SUBJECT].ToString();
+                        txtNumAssign.Text = row[ASSIGNSHEET_NUMASSIGN].ToString();
+                        txtStartDate.Text = (today).ToString("MM/dd");
                         txtLevel.Text = subStringLevel[0];
-                        string[] subStringPage = subStringLevel[1].Split('-');
                         txtStartPage.Text = (int.Parse(subStringPage[1]) + 1).ToString();
-                        cbxPattern.Text = row[8].ToString();
-                        cbxDayOff.Text = row[9].ToString();
+                        cbxPattern.Text = row[ASSIGNSHEET_PATTERN].ToString();
+                        cbxDayOff.Text = row[ASSIGNSHEET_DAYOFF].ToString();
                     }
 
                 }
@@ -191,156 +271,71 @@ namespace KumIn_WPF
                 }
 
                 updateData();
-
                 txtBarcode.Clear();
-                //cbxSubject.Text = "None";
 
             }
         }
 
-        private void clearData()
-        {
-            dt.Clear();
-
-            lblName.Content = "";
-            lblSubjectBig.Content = "";
-            lblDateRange.Content = "";
-            txtBarcode.Clear();
-            cbxSubject.Text = "None";
-            txtStartDate.Clear();
-            txtNumAssign.Clear();
-            txtLevel.Clear();
-            txtStartPage.Clear();
-            cbxPattern.Text = "None";
-            cbxDayOff.Text = "None";
-
-            txtBarcode.Focus();
-        }
-
-        private IList<IList<Object>> getSpreadsheetInfo(string spreadsheetId, string range)
-        {
-            UserCredential credential;
-
-            using (var stream =
-                new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-            {
-                string credPath = System.Environment.GetFolderPath(
-                    System.Environment.SpecialFolder.Personal);
-                credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
-
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            }
-
-            // Create Google Sheets API service.
-            var service = new SheetsService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
-
-            SpreadsheetsResource.ValuesResource.GetRequest request =
-                        service.Spreadsheets.Values.Get(spreadsheetId, range);
-
-            ValueRange response = request.Execute();
-            IList<IList<Object>> values = response.Values;
-            return values;
-        }
-        private void updateSpreadsheetInfo(List<Object> oblist, string spreadsheetId, string range)
-        {
-            List<IList<Object>> values = new List<IList<object>> { oblist };
-
-            ValueRange valueRange = new ValueRange();
-            valueRange.Values = values;
-            UserCredential credential;
-
-            using (var stream =
-                new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-            {
-                string credPath = System.Environment.GetFolderPath(
-                    System.Environment.SpecialFolder.Personal);
-                credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
-
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            }
-
-            // Create Google Sheets API service.
-            var service = new SheetsService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
-
-            SpreadsheetsResource.ValuesResource.UpdateRequest request =
-                        service.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
-            request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-            request.Execute();
-        }
 
 
+
+
+
+
+        
+        //************************************************************************
+        // Definition of function writeData()                                    *
+        // This function takes in information from the dataGrid and user fields  *
+        // and updates the Assignment Record spreadsheet accordingly.            *
+        //************************************************************************
         private void writeData(string[] dateAssign)
         {
-            int rowNum = 1;
             string[] name = lblName.Content.ToString().Split(' ');
-            string barcode = name[0].ToUpper() + "-" + string.Concat(name[1][0], name[1][1]).ToUpper();
+            string barcode = name[0].ToUpper() + "-" 
+                + string.Concat(name[1][0], name[1][1]).ToUpper();
+            string barcodes = ASSIGNMENT_SHEET_RECORD + "!C1:C";
+            string subjectColumn = ASSIGNMENT_SHEET_RECORD + "!D1:D";
+            int rowNum = assignConnection.getRowNum(ASSIGNMENT_SHEET
+                , barcodes, barcode, subjectColumn, Subject);
+            string studentInfoCells = ASSIGNMENT_SHEET_RECORD + "!B" + rowNum.ToString()
+                + ":E" + rowNum.ToString();
+            string assignmentInfoCells = ASSIGNMENT_SHEET_RECORD + "!H" + rowNum.ToString()
+                + ":AAA" + rowNum.ToString();
+            var studentInfo = new List<object>();
+            var assignmentInfo = new List<object>();
 
-            IList<IList<Object>> values = getSpreadsheetInfo("1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s", "Test!C1:D");
-            string range = "";
-            string spreadsheetId = "";
-            if (values != null && values.Count > 0)
-            {                
+            studentInfo.Add(name[1]);
+            studentInfo.Add(name[0]);
+            studentInfo.Add(barcode);
+            studentInfo.Add(Subject);
 
-                foreach (var row in values)
-                {
+            assignConnection.update(studentInfo, ASSIGNMENT_SHEET, studentInfoCells);
 
-                    if (row[0].ToString() == barcode && row[1].ToString() == Subject)
-                    {
-                        range = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
-                        break;
-                    }
-                    else
-                        rowNum++;
-                }
-            }
-
-            spreadsheetId = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
-            range = "Test!A" + rowNum.ToString() + ":D" + rowNum.ToString();
-            ValueRange valueRange = new ValueRange();
-
-            var oblist = new List<object>();
-            var oblist2 = new List<object>();
-            oblist.Add(name[1]);
-            oblist.Add(name[0]);
-            oblist.Add(barcode);
-            oblist.Add(Subject);
-
-            updateSpreadsheetInfo(oblist, spreadsheetId, range);
-
-            range = "Test!G" + rowNum.ToString() + ":AAA" + rowNum.ToString();
-            oblist2.Add(DateTime.Now.ToString("MM/dd"));
-            oblist2.Add(txtNumAssign.Text);
-            oblist2.Add(Pattern);
-            oblist2.Add(DayOff);
+            assignmentInfo.Add(DateTime.Now.ToString("MM/dd"));
+            assignmentInfo.Add(txtNumAssign.Text);
+            assignmentInfo.Add(Pattern);
+            assignmentInfo.Add(DayOff);
 
             for(int i = 0; i < 2 * int.Parse(txtNumAssign.Text); i+=2)
             {
-                oblist2.Add(dateAssign[i]);
-                oblist2.Add(dateAssign[i + 1]);
+                assignmentInfo.Add(dateAssign[i]);
+                assignmentInfo.Add(dateAssign[i + 1]);
             }
 
-            updateSpreadsheetInfo(oblist2, spreadsheetId, range);
+            assignConnection.update(assignmentInfo, ASSIGNMENT_SHEET, assignmentInfoCells);
         }
 
 
+
+
+
+
+
+        //**********************************************************************************
+        // Definition of function updateDate()                                             *
+        // If all user fields are filled, then data is extracted and populated accordingly *
+        // inside the dataGrid.                                                            *
+        //**********************************************************************************
         private void updateData()
         {
             try
@@ -355,13 +350,13 @@ namespace KumIn_WPF
                     int sheet = int.Parse(txtStartPage.Text);
                     int nextSheet = 0;
                     bool flag = false;
+
+
                     for (int i = 0; i < int.Parse(txtNumAssign.Text); i++)
                     {
                         DataRow myRow = dt.NewRow();
                         TimeSpan increment = new TimeSpan(i, 0, 0, 0);
-                        assignDate = (new DateTime(DateTime.Now.Year, int.Parse(string.Concat(txtStartDate.Text[0]
-                            , txtStartDate.Text[1])), int.Parse(string.Concat(txtStartDate.Text[3]
-                            , txtStartDate.Text[4]))) + increment);
+                        assignDate = (Convert.ToDateTime(txtStartDate) + increment);
 
                         if (flag || assignDate.DayOfWeek.ToString() == DayOff)
                         {
@@ -391,6 +386,7 @@ namespace KumIn_WPF
 
 
                     }
+
                     lblDateRange.Content = txtStartDate.Text + "-" + assignDate.ToString("MM/dd");
                 }
             }
@@ -400,6 +396,18 @@ namespace KumIn_WPF
             }
         }
 
+
+
+
+
+
+
+        //*****************************************************************************
+        // Definition of function getDateAssign()                                     *
+        // This function extracts information about assignments assigned for each     *
+        // day and formats it in a string[] that is returned. This array is then used *
+        // to append to the spreadsheet.                                              *
+        //*****************************************************************************
         private string[] getDateAssign()
         {
             string[] dateAssign = new string[76];
@@ -411,9 +419,9 @@ namespace KumIn_WPF
             {
                 DataRow dr = table.NewRow();
 
-                dr["Assigned"] = (dgdFormat.Items[i] as DataRowView)[1];
-                dr["Sheet#"] = (dgdFormat.Items[i] as DataRowView)[3].ToString()
-                    + " " + (dgdFormat.Items[i] as DataRowView)[4].ToString();
+                dr["Assigned"] = (dgdFormat.Items[i] as DataRowView)[DATAGRID_ASSIGNDATE];
+                dr["Sheet#"] = (dgdFormat.Items[i] as DataRowView)[DATAGRID_LEVEL].ToString()
+                    + " " + (dgdFormat.Items[i] as DataRowView)[DATAGRID_PAGES].ToString();
 
                 table.Rows.Add(dr);
             }
@@ -430,13 +438,22 @@ namespace KumIn_WPF
             return dateAssign;
         }
 
+
+
+
+
+
+
+        //*******************************************************************************
+        // Definition of function print()                                               *
+        // Page size is set to a quarter page (408x528) and a ticket containing a doc   *
+        // with values extracted from the DataGrid is created and sent to the deafult   *
+        // printer to be printed.                                                       *
+        //*******************************************************************************
         private void print()
         {
             
-
-
-
-            System.Windows.Controls.PrintDialog Printdlg = new System.Windows.Controls.PrintDialog();
+            PrintDialog Printdlg = new PrintDialog();
             Printdlg.PrintTicket.PageMediaSize = new PageMediaSize(408, 528);
 
             double width = 408;
@@ -456,6 +473,16 @@ namespace KumIn_WPF
 
         }
 
+
+
+
+
+
+        //********************************************************************************
+        // Definition of function CreateFlowDocument()                                   *
+        // A FlowDocument is created to the specified width and heigh of the page. It    *
+        // contains all the information from the datagrid, reformatted for printing.     *
+        //********************************************************************************
         private FlowDocument CreateFlowDocument(double pageWidth, double pageHeight)
         {
             // Create a FlowDocument
@@ -541,16 +568,47 @@ namespace KumIn_WPF
             return doc;
         }
 
+
+
+
+
+
+
+        //*************************************************************************
+        // Definition of event handler txtLevel_TextChanged()                     *
+        // Data is updated in the view's grid.                                    *
+        //*************************************************************************
         private void txtLevel_TextChanged(object sender, TextChangedEventArgs e)
         {
             updateData();
         }
 
+
+
+
+
+
+
+        //*************************************************************************
+        // Definition of event handler txtStartPage_TextChanged()                 *
+        // Data is updated in the view's grid.                                    *
+        //*************************************************************************
         private void txtStartPage_TextChanged(object sender, TextChangedEventArgs e)
         {
             updateData();
         }
 
+
+
+
+
+
+
+        //**************************************************************************
+        // Definition of function calculateNextSheet()                             *
+        // A currentSheet is taken in as arguments, and the subsequent             *
+        // starting page is returned based on the specified pattern                *
+        //**************************************************************************
         private int calculateNextSheet(string pattern, int currentSheet)
         {
             int nextSheet = currentSheet;
@@ -598,6 +656,18 @@ namespace KumIn_WPF
             return nextSheet;
         }
 
+
+
+
+
+
+
+        //***************************************************************************
+        // Definition of function getNewPattern()                                   *
+        // A starting page and ending page are accepted as arguments. The function  *
+        // parses those values and infers which pattern they beong to. This         *
+        // calculated pattern is returned.                                          *
+        //***************************************************************************
         private string getNewPattern(int startPage, int endPage)
         {
 
@@ -628,6 +698,13 @@ namespace KumIn_WPF
             return Pattern;
 
         }
+
+
+
+
+
+
+
 
         public string DayOff
         {
@@ -674,6 +751,12 @@ namespace KumIn_WPF
 
                 lblSubjectBig.Content = Subject;
             }
+        }
+
+        public string Barcode
+        {
+            get { return txtBarcode.Text; }
+            set { txtBarcode.Text = value; }
         }
     }
 }
