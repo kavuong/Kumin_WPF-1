@@ -206,7 +206,7 @@ namespace KumIn_WPF
 
             for (int i = 0; i < column1.Count; i++)
             {
-                if (column1[i].ToString() == value1 && column2[i].ToString() == value2)
+                if (column1[i][0].ToString() == value1 && column2[i][0].ToString() == value2)
                     return rowNum;
                 else
                     rowNum++;
@@ -237,7 +237,8 @@ namespace KumIn_WPF
 
             for (int i = 0; i < column1.Count; i++)
             {
-                if (column1[i].ToString() == value1 && column2[i].ToString() == value2 && column3[i].ToString() == value3)
+                if (column1[i][0].ToString() == value1 && column2[i][0].ToString() 
+                    == value2 && column3[i][0].ToString() == value3)
                     return rowNum;
                 else
                     rowNum++;

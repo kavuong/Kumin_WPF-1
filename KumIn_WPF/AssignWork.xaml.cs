@@ -102,37 +102,49 @@ namespace KumIn_WPF
             }
             else if (e.Column.SortMemberPath.Equals("Sheet#"))
             {
-                int currentSheet = int.Parse(txtStartPage.Text);
-                string[] pages = text.Split('-');
-                int startPage = int.Parse(pages[0]);
-                int endPage = int.Parse(pages[1]);
-                string newPattern = getNewPattern(startPage, endPage);
 
+                string[] pages;
+                int startPage;
+                int endPage;
+                int currentSheet;
+                string newPattern;
 
-                for (int i = 0; i < rowIndex; i++)
-                {
-                    currentSheet = calculateNextSheet(Pattern, currentSheet);
-                }
+                pages = text.Split('-');
 
-                
                 if (text.ToUpper() == "C")
                 {
+                    pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
+                    startPage = int.Parse(pages[0]);
+                    endPage = int.Parse(pages[1]);
+
+                    currentSheet = int.Parse(pages[0]);
                     dt.Rows[rowIndex]["Sheet#"] = "Corr. Only";
                     rowIndex++;
                 }
+                else
+                {
+                    startPage = int.Parse(pages[0]);
+                    endPage = int.Parse(pages[1]);
+                    currentSheet = startPage;
+                }
+
+                newPattern = getNewPattern(startPage, endPage);
+
 
 
                 for (int i = rowIndex; i < dt.Rows.Count; i++)
                 {
-                    int nextSheet = calculateNextSheet(newPattern, currentSheet);
+                    int nextSheet;
+
+                    if (currentSheet > 200)
+                        currentSheet -= 200;
+
+                    nextSheet = calculateNextSheet(newPattern, currentSheet);
 
                     dt.Rows[i]["Sheet#"] = currentSheet.ToString() + "-"
                         + (nextSheet - 1).ToString();
 
                     currentSheet = nextSheet;
-
-                    if (currentSheet > 200)
-                        currentSheet -= 200;
 
                 }
                 dgdFormat.ItemsSource = dt.DefaultView;
@@ -241,9 +253,9 @@ namespace KumIn_WPF
                         int lastDateIndex = row.Count - 2;
                         DateTime today = Convert.ToDateTime(row[ASSIGNSHEET_LASTDAY])
                             + new TimeSpan(1, 0, 0, 0);
-                        string[] subStringLevel 
-                            = row[ASSIGNSHEET_DAYOFF + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
-                        string[] subStringPage = subStringLevel[1].Split('-');
+                        string[] subStringLevel; 
+                            
+                        string[] subStringPage;
 
 
                         if (!found)
@@ -254,7 +266,11 @@ namespace KumIn_WPF
                         lblSubject.Content = row[ASSIGNSHEET_SUBJECT].ToString();
                         txtNumAssign.Text = row[ASSIGNSHEET_NUMASSIGN].ToString();
                         txtStartDate.Text = (today).ToString("MM/dd");
+
+                        subStringLevel = row[ASSIGNSHEET_DAYOFF + 2 * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
                         txtLevel.Text = subStringLevel[0];
+
+                        subStringPage = subStringLevel[1].Split('-');
                         txtStartPage.Text = (int.Parse(subStringPage[1]) + 1).ToString();
                         cbxPattern.Text = row[ASSIGNSHEET_PATTERN].ToString();
                         cbxDayOff.Text = row[ASSIGNSHEET_DAYOFF].ToString();
@@ -293,8 +309,8 @@ namespace KumIn_WPF
             string[] name = lblName.Content.ToString().Split(' ');
             string barcode = name[0].ToUpper() + "-" 
                 + string.Concat(name[1][0], name[1][1]).ToUpper();
-            string barcodes = ASSIGNMENT_SHEET_RECORD + "!C1:C";
-            string subjectColumn = ASSIGNMENT_SHEET_RECORD + "!D1:D";
+            string barcodes = ASSIGNMENT_SHEET_RECORD + "!D1:D";
+            string subjectColumn = ASSIGNMENT_SHEET_RECORD + "!E1:E";
             int rowNum = assignConnection.getRowNum(ASSIGNMENT_SHEET
                 , barcodes, barcode, subjectColumn, Subject);
             string studentInfoCells = ASSIGNMENT_SHEET_RECORD + "!B" + rowNum.ToString()
@@ -356,7 +372,8 @@ namespace KumIn_WPF
                     {
                         DataRow myRow = dt.NewRow();
                         TimeSpan increment = new TimeSpan(i, 0, 0, 0);
-                        assignDate = (Convert.ToDateTime(txtStartDate) + increment);
+                        assignDate = (DateTime.Parse(txtStartDate.Text + "/" + DateTime.Now.Year.ToString()) 
+                            + increment);
 
                         if (flag || assignDate.DayOfWeek.ToString() == DayOff)
                         {
