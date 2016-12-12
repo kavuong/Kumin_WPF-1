@@ -216,5 +216,65 @@ namespace KumIn_WPF
         }
 
 
+
+
+
+
+
+        //*************************************************************************
+        // Definition of overload of getRowNum()                                  *
+        // Same logic as getRowNum, but now crosschecks two different values found*
+        // in 3 different colunns of the same row.                                *
+        //*************************************************************************
+        public int getRowNum(string spreadsheetID, string columnRange1, string value1
+         , string columnRange2, string value2, string columnRange3, string value3)
+        {
+            IList<IList<Object>> column1 = get(spreadsheetID, columnRange1);
+            IList<IList<Object>> column2 = get(spreadsheetID, columnRange2);
+            IList<IList<Object>> column3 = get(spreadsheetID, columnRange3);
+
+            int rowNum = 1;
+
+            for (int i = 0; i < column1.Count; i++)
+            {
+                if (column1[i].ToString() == value1 && column2[i].ToString() == value2 && column3[i].ToString() == value3)
+                    return rowNum;
+                else
+                    rowNum++;
+            }
+
+            return -1;
+        }
+
+
+
+
+
+
+        public string returnCarrierString(string carrier)
+        {
+            if (carrier == "Verizon")
+                return "@vtext.com";
+
+            else if (carrier == "AT&T")
+                return "@txt.att.net";
+
+            else if (carrier == "Sprint")
+                return "@messaging.sprintpcs.com";
+
+            else if (carrier == "T-Mobile")
+                return "@tmomail.net";
+
+            else if (carrier == "Cricket")
+                return "@sms.mycricket.com";
+
+            else if (carrier == "Ultra")
+                return "@mailmymobile.net";
+
+            return null;
+            
+        }
+
+
     }
 }
