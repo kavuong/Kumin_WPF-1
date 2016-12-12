@@ -39,6 +39,9 @@ namespace KumIn_WPF
         DataTable dummyTable = new DataTable();
         SpreadsheetConnection kuminConnection = new SpreadsheetConnection();
 
+
+
+
         // Constants
         public const int TIMER_CYCLE = 15;                                      // seconds
         public const string ATTENDANCE_SHEET = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
@@ -84,6 +87,7 @@ namespace KumIn_WPF
         public const int DATABASE_HW2_VERIF = 18;
 
         public const int ASSIGNMENT_RECORD_LAST_DAY = 7;
+        public const int ASSIGNMENT_RECORD_DURATION = 12;
 
         public const int ONE_SUBJECT_LENGTH = 1;
         public const int TWO_SUBJECT_LENGTH = 2;
@@ -119,10 +123,44 @@ namespace KumIn_WPF
 
             string centerDates = ATTENDANCE_SHEET_PERM_RECORD + "!A1:A";
 
+
             if (!kuminConnection.isValuePresent(ATTENDANCE_SHEET, centerDates, DateTime.Now.ToString("MM/dd/yyyy"))) 
             {
                 List<Object> date = new List<object>() { DateTime.Now.ToString("MM/dd/yyyy") };
                 kuminConnection.append(date, ATTENDANCE_SHEET, centerDates);
+            }
+
+            this.dgdListing.CellEditEnding += new EventHandler<DataGridCellEditEndingEventArgs>(dgdListing_CellEditEnding);
+        }
+
+
+
+
+
+
+
+        //
+        private void dgdListing_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            int rowIndex = ((DataGrid)sender).ItemContainerGenerator.IndexFromContainer(e.Row);
+            string text = ((TextBox)e.EditingElement).Text;
+            int attRowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD 
+                + "!C1:C", dummyTable.Rows[rowIndex]["Barcode"].ToString());
+            int assRowNum = kuminConnection.getRowNum(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD
+                + "!D1:D", dummyTable.Rows[rowIndex]["Barcode"].ToString());
+            
+
+            if (e.Column.SortMemberPath.Equals("#Completed"))
+            {
+                List<Object> completed = new List<object>() { text };
+                kuminConnection.update(completed, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!J" + attRowNum.ToString());
+                kuminConnection.update(completed, ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!F" + assRowNum.ToString());
+            }
+            else if (e.Column.SortMemberPath.Equals("#Missing"))
+            {
+                List<Object> missing = new List<object>() { text };
+                kuminConnection.update(missing, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!K" + attRowNum.ToString());
+                kuminConnection.update(missing, ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!G" + assRowNum.ToString());
             }
         }
 
@@ -149,66 +187,37 @@ namespace KumIn_WPF
             IList<IList<Object>> tempSheetValues = kuminConnection.get(ATTENDANCE_SHEET, tempSheet);
 
 
-
-            if (dummyTable.Rows.Count != 0)
-            {
-                DataTable dt = new DataTable();
-                dt = ((DataView)dgdListing.ItemsSource).ToTable();
-
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    if (row[DATAGRID_COMPLETED].ToString() != "" && row[DATAGRID_MISSING].ToString() != "")
-                    {
-                        int rowNum;
-                        string firstNames = ATTENDANCE_SHEET_TEMP_RECORD + "!B1:B";
-                        string lastNames = ATTENDANCE_SHEET_TEMP_RECORD + "!A1:A";
-                        string studentRow;
-                        List<Object> studentAssignmentEval = new List<object>
-                            { row[DATAGRID_COMPLETED].ToString(), row[DATAGRID_MISSING].ToString() };
-
-
-                        rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, lastNames
-                            , row[DATAGRID_LASTNAME].ToString(), firstNames, row[DATAGRID_FIRSTNAME].ToString());
-
-                        studentRow = ATTENDANCE_SHEET_TEMP_RECORD + "!J" + rowNum.ToString() 
-                            + ":K" + rowNum.ToString();
-
-                        kuminConnection.update(studentAssignmentEval, ATTENDANCE_SHEET, studentRow);
-                    }
-                }
-            }
-
-
-            
-
+          
             if (tempSheetValues != null && tempSheetValues.Count > 0)
             {
                 dummyTable.Clear();
                 for (int i = 1; i < tempSheetValues.Count; i++)
                 {
-                    IList<Object> studentIn = tempSheetValues[i];
-                    DataRow dummyRow = dummyTable.NewRow();
-                    TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now))
-                        .Subtract(DateTime.Parse(Convert.ToString(studentIn[TEMPSHEET_INTIME])));
+                    if (tempSheetValues[i].Count != 0)                      // Holes are created on signout causing unhandled exception
+                    {
+                        IList<Object> studentIn = tempSheetValues[i];
+                        DataRow dummyRow = dummyTable.NewRow();
+                        TimeSpan duration = DateTime.Parse(Convert.ToString(DateTime.Now))
+                            .Subtract(DateTime.Parse(Convert.ToString(studentIn[TEMPSHEET_INTIME])));
 
-                    dummyRow["FirstName"] = studentIn[TEMPSHEET_FIRSTNAME];
-                    dummyRow["LastName"] = studentIn[TEMPSHEET_LASTNAME];
-                    dummyRow["Barcode"] = studentIn[TEMPSHEET_BARCODE];
+                        dummyRow["FirstName"] = studentIn[TEMPSHEET_FIRSTNAME];
+                        dummyRow["LastName"] = studentIn[TEMPSHEET_LASTNAME];
+                        dummyRow["Barcode"] = studentIn[TEMPSHEET_BARCODE];
 
-                    dummyRow["InTime"] = studentIn[TEMPSHEET_INTIME];
-                    dummyRow["#Subjects"] = studentIn[TEMPSHEET_SUBJECTS];
+                        dummyRow["InTime"] = studentIn[TEMPSHEET_INTIME];
+                        dummyRow["#Subjects"] = studentIn[TEMPSHEET_SUBJECTS];
 
-                    
-                    dummyRow["Duration"] = duration.ToString(@"hh\:mm");
-                    dummyRow["LastDay"] = studentIn[TEMPSHEET_LASTDAY];
 
-                    dummyRow["#Completed"] = studentIn[TEMPSHEET_COMPLETED];
-                    dummyRow["#Missing"] = studentIn[TEMPSHEET_MISSING];
+                        dummyRow["Duration"] = duration.ToString(@"hh\:mm");
+                        dummyRow["LastDay"] = studentIn[TEMPSHEET_LASTDAY];
 
-                    dgdListing.ItemsSource = dummyTable.DefaultView;
-                    dummyTable.Rows.Add(dummyRow);
-                    dummyTable.DefaultView.Sort = "Duration DESC";
+                        dummyRow["#Completed"] = studentIn[TEMPSHEET_COMPLETED];
+                        dummyRow["#Missing"] = studentIn[TEMPSHEET_MISSING];
+
+                        dgdListing.ItemsSource = dummyTable.DefaultView;
+                        dummyTable.Rows.Add(dummyRow);
+                        dummyTable.DefaultView.Sort = "Duration DESC";
+                    }
                 }
             }
 
@@ -241,12 +250,12 @@ namespace KumIn_WPF
                         foreach (DataRow row in dummyTable.Rows)
                         {
                             string barcode = row["Barcode"].ToString();
-                            if (txtUpdate.Text == barcode)
+                            if ("A" + txtUpdate.Text == barcode)
                                 break;
                             else
                                 studentRowNum++;
                         }
-                        DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[studentRowNum]["TimeIn"].ToString());
+                        DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[studentRowNum]["InTime"].ToString());
                         if (DateTime.Now - timeIn > new TimeSpan(0, 1, 0))
                         {
                             signOut(new string[CONFIRMATION_INPUT] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
@@ -326,8 +335,8 @@ namespace KumIn_WPF
         {
             // Scanner works? checkvalues.count == 1
             string studentBarcode = studentInput[barcodeIndex];
-            string studentFirstName = studentInput[firstNameIndex];
-            string studentLastName = studentInput[lastNameIndex];
+
+
             foreach (DataRow row in dummyTable.Rows)
             {
                 string firstName = row["FirstName"].ToString();
@@ -337,21 +346,11 @@ namespace KumIn_WPF
                 {
                     // Check if manual entry
                     if (studentInput.Count() == CONFIRMATION_INPUT)
-                        return firstName.ToUpper() == studentFirstName.ToUpper()
-                            && lastName.ToUpper() == studentLastName.ToUpper();
+                        return firstName.ToUpper() == studentInput[firstNameIndex].ToUpper()
+                            && lastName.ToUpper() == studentInput[lastNameIndex].ToUpper();
                     else
                         return true;
                 }
-
-                // We need to store the barcode inside dataTable but not display in datagrid.
-                // AKA: new column in datatable, but dont bind that column to datagrid.
-                // Use dateTime.Now - signInTime < 1 ==> messagebox confirm 
-                // Also, remove the sign out textbox and button.
-
-                // Good idea to also add column with number of subjects in our dataTable too
-                // Storing this info which we use a lot can help shorten number of spreadsheet calls
-                // All of this would also help when we record information into the record as we can
-                // use the info in our internal datatable row rather than  
             }
 
             return false;
@@ -387,17 +386,24 @@ namespace KumIn_WPF
 
             if (checkValues.Count() == 3)
             {
-                rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, tempColumn1, checkValues[barcodeIndex].ToUpper(), tempColumn2
-                , checkValues[firstNameIndex].ToUpper(), tempColumn3, checkValues[lastNameIndex].ToUpper());
-            }           
+                rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, tempColumn1, checkValues[lastNameIndex].ToUpper(), tempColumn2
+                , checkValues[firstNameIndex].ToUpper(), tempColumn3, checkValues[barcodeIndex].ToUpper());
+            }
+            else if (checkValues.Count() == 1)
+            {
+                rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, tempColumn3, checkValues[barcodeIndex].ToUpper());
+            }
+                           
             
-            string signOutRange = ATTENDANCE_SHEET_TEMP_RECORD + "!A" + (rowNum - 1).ToString() + "AAA" + (rowNum - 1).ToString();
+            string signOutRange = ATTENDANCE_SHEET_TEMP_RECORD + "!A" + rowNum.ToString() + ":AAA" + rowNum.ToString();
             IList<IList<Object>> signOutStudent = kuminConnection.get(ATTENDANCE_SHEET, signOutRange);
-            TimeSpan duration = DateTime.Now.Subtract(Convert.ToDateTime(signOutStudent[TEMPSHEET_INTIME]));
+            TimeSpan duration = DateTime.Now.Subtract(Convert.ToDateTime(signOutStudent[0][TEMPSHEET_INTIME]));
 
             for (int i = 0; i < TEMPSHEET_COLUMNS; i++)
-                pasteRange.Add(signOutStudent[i]);
-
+            {
+                pasteRange.Add(signOutStudent[0][i]);
+                
+            }
 
             pasteRange.Add((duration).ToString(@"hh\:mm"));
 
@@ -432,7 +438,7 @@ namespace KumIn_WPF
             string lastName = "";
             string lastDayIn = "";
             string databaseRange = DATABASE_SHEET_RECORD + "!A1:AI";
-            string barcodeRange = DATABASE_SHEET_RECORD + "!D1:DI";
+            string barcodeRange = DATABASE_SHEET_RECORD + "!D1:D";
             string firstNameRange = DATABASE_SHEET_RECORD + "!F1:F";
             string lastNameRange = DATABASE_SHEET_RECORD + "!H1:H";
             
@@ -447,7 +453,7 @@ namespace KumIn_WPF
             string[] subjectsArray;
             string studentRowRange;
             int rowNum = 0;
-            int assignmentRecordRowNum = 1;
+            int assignmentRecordRowNum = 0;
             IList<IList<Object>> databaseValues = kuminConnection.get(DATABASE_SHEET, databaseRange);
             IList<IList<Object>> assignmentRecordValues = kuminConnection.get(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!B1:C");
 
@@ -458,8 +464,11 @@ namespace KumIn_WPF
 
             if (databaseValues != null && databaseValues.Count > 0)
             {
-                rowNum = kuminConnection.getRowNum(DATABASE_SHEET, barcodeRange, checkValues[barcodeIndex]
-                    , firstNameRange, checkValues[firstNameIndex], lastNameRange, checkValues[lastNameIndex]);
+                if (checkValues.Length == 1)
+                    rowNum = kuminConnection.getRowNum(DATABASE_SHEET, barcodeRange, checkValues[barcodeIndex]);
+                else if (checkValues.Length == CONFIRMATION_INPUT)
+                    rowNum = kuminConnection.getRowNum(DATABASE_SHEET, barcodeRange, checkValues[barcodeIndex]
+                        , firstNameRange, checkValues[firstNameIndex], lastNameRange, checkValues[lastNameIndex]);
             }
 
             studentRowRange = DATABASE_SHEET_RECORD + "!A" + rowNum.ToString() + ":AAA" + rowNum.ToString();
@@ -494,8 +503,8 @@ namespace KumIn_WPF
                 studentRowList.Add(phone2);
                 studentRowList.Add(carrier2);
                 studentRowList.Add("");                     // Updating Last-Day-In subsequently                
-                studentRowList.Add(" ");                     // Completed
-                studentRowList.Add(" ");                     // Missing
+                studentRowList.Add("");                     // Completed
+                studentRowList.Add("");                     // Missing
                 studentRowList.Add(DateTime.Now.ToString("t"));
                 studentRowList.Add(subjects.ToString());
             }
@@ -509,22 +518,15 @@ namespace KumIn_WPF
             
             // edit this to pull appropriate valued from database into temp and record sheet columns
             if (lastName != null && firstName != null)
-            {                
+            {
                 //get rowNum from Assignment Record spreadsheet
-                string assignmentRecordRange = "";
-                foreach (var row in assignmentRecordValues)
-                {
-                    if (row[1].ToString() == firstName && row[0].ToString() == lastName)
-                    {
-                        assignmentRecordRange = ASSIGNMENT_RECORD + "!A" + assignmentRecordRowNum.ToString() 
-                            + ":" + "AAA" + assignmentRecordRowNum.ToString();
-                        break;
-                    }
-                    else
-                    {
-                        assignmentRecordRowNum++;
-                    }
-                }
+                string assignmentRecordRange;
+                assignmentRecordRowNum = kuminConnection.getRowNum(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!B1:B", lastName
+                    , ASSIGNMENT_RECORD + "!C1:C", firstName);
+
+                assignmentRecordRange = ASSIGNMENT_RECORD + "!A" + assignmentRecordRowNum.ToString() 
+                    + ":AAA" + assignmentRecordRowNum.ToString();
+                
                 assignmentRecordRow = kuminConnection.get(ASSIGNMENT_RECORD_SHEET, assignmentRecordRange);
 
                 foreach (var row in assignmentRecordRow)
@@ -597,7 +599,7 @@ namespace KumIn_WPF
 
                 if (hwEmailVerif.ToUpper() == "YES")
                 {
-                    mail.From = new MailAddress("anthonyluukumon@gmail.com");
+                    mail.From = new MailAddress("kumonsrn@gmail.com");
                     mail.To.Add(email); // reg email
                     mail.Subject = "Kumon HW notification";
                     mail.Body = "Dear KUMON Parents,\n Your child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
@@ -664,12 +666,12 @@ namespace KumIn_WPF
                 phone2 = studentRow[DATABASE_PHONE2].ToString();
                 carrier2 = studentRow[DATABASE_CARRIER2].ToString();
 
-                carrierString1 = kuminConnection.returnCarrierString(carrier1);
-                carrierString2 = kuminConnection.returnCarrierString(carrier2);
+                carrierString1 = returnCarrierString(carrier1);
+                carrierString2 = returnCarrierString(carrier2);
 
                 if (phone1 != null && carrierString1 != null && pickUpVerif1.ToUpper() == "YES")
                 {
-                    mail1.From = new MailAddress("anthonyluukumon@gmail.com");
+                    mail1.From = new MailAddress("kumonsrn@gmail.com");
                     mail1.To.Add(phone1 + carrierString1); //phone
                     mail1.Subject = "Kumon Reminder";
                     mail1.Body = "Your child - " + firstName + " " + lastName + " - is ready to be picked up";
@@ -830,6 +832,30 @@ namespace KumIn_WPF
         {
             get { return lblTime.Content.ToString(); }
             set { lblTime.Content = value; }
+        }
+
+        public string returnCarrierString(string carrier)
+        {
+            if (carrier == "Verizon")
+                return "@vtext.com";
+
+            else if (carrier == "AT&T")
+                return "@txt.att.net";
+
+            else if (carrier == "Sprint")
+                return "@messaging.sprintpcs.com";
+
+            else if (carrier == "T-Mobile")
+                return "@tmomail.net";
+
+            else if (carrier == "Cricket")
+                return "@sms.mycricket.com";
+
+            else if (carrier == "Ultra")
+                return "@mailmymobile.net";
+
+            return null;
+
         }
     }
 }

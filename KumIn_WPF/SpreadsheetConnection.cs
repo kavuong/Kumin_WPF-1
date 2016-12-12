@@ -176,13 +176,18 @@ namespace KumIn_WPF
             int rowNum = 1;
             foreach (var cell in column)
             {
-                if (cell[0].ToString() == value)
-                    return rowNum;
+                if (cell.Count != 0)                                        // Unhandled exception b/c of holes
+                {
+                    if (cell[0].ToString() == value)
+                        return rowNum;
+                    else
+                        rowNum++;
+                }
                 else
                     rowNum++;
             }
 
-            return -1;
+            return rowNum;
         }
 
 
@@ -206,13 +211,19 @@ namespace KumIn_WPF
 
             for (int i = 0; i < column1.Count; i++)
             {
-                if (column1[i][0].ToString() == value1 && column2[i][0].ToString() == value2)
-                    return rowNum;
+
+                if (column1[i].Count != 0 && column2[i].Count != 0)                         // Unhandled exception b/c of holes
+                {
+                    if (column1[i][0].ToString() == value1 && column2[i][0].ToString() == value2)
+                        return rowNum;
+                    else
+                        rowNum++;
+                }
                 else
                     rowNum++;
             }
 
-            return -1;
+            return rowNum;
         }
 
 
@@ -237,14 +248,18 @@ namespace KumIn_WPF
 
             for (int i = 0; i < column1.Count; i++)
             {
-                if (column1[i][0].ToString() == value1 && column2[i][0].ToString() 
-                    == value2 && column3[i][0].ToString() == value3)
-                    return rowNum;
+                if (column1[i].Count != 0 && column2[i].Count != 0 && column3[i].Count != 0)             // Unhandled exception b/c of holes
+                {
+                    if (column1[i][0].ToString() == value1 && column2[i][0].ToString() == value2 && column3[i][0].ToString() == value3)
+                        return rowNum;
+                    else
+                        rowNum++;
+                }
                 else
                     rowNum++;
             }
 
-            return -1;
+            return rowNum;
         }
 
 
@@ -252,29 +267,7 @@ namespace KumIn_WPF
 
 
 
-        public string returnCarrierString(string carrier)
-        {
-            if (carrier == "Verizon")
-                return "@vtext.com";
 
-            else if (carrier == "AT&T")
-                return "@txt.att.net";
-
-            else if (carrier == "Sprint")
-                return "@messaging.sprintpcs.com";
-
-            else if (carrier == "T-Mobile")
-                return "@tmomail.net";
-
-            else if (carrier == "Cricket")
-                return "@sms.mycricket.com";
-
-            else if (carrier == "Ultra")
-                return "@mailmymobile.net";
-
-            return null;
-            
-        }
 
 
     }
