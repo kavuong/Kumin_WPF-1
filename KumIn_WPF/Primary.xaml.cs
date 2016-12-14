@@ -453,6 +453,19 @@ namespace KumIn_WPF
 
 
 
+
+        //************************************************
+        // Definition of populateDataGrid()
+        // Takes a string array of barcode as input. First name and last name are also 
+        // in the array if manual input is enabled in btnUpdate_Click(). Initializes 
+        // the ranges for the entire database and barcode, first name and last name
+        // columns. Gets the row number in the database corresponding to the values
+        // in the input array, and gets the row corresponding to the row num. Sets
+        // last name, first name, barcode, and all information needed from the
+        // database row, and adds these values to a new List<Object>
+
+
+
         private void populateDataGrid(string[] checkValues)
         {
             // Scanner works? checkvalues.count == 1.
@@ -658,7 +671,9 @@ namespace KumIn_WPF
             }
         }              
 
-
+        private void btnCMSManip_Click(object sender, RoutedEventArgs e) {
+            CMSManip myCMSManip = new CMSManip();
+        }
 
 
 
@@ -709,9 +724,10 @@ namespace KumIn_WPF
 
         }
 
-        private void btnCMSManip_Click(object sender, RoutedEventArgs e)
+        private void btnHWEmail_Click(object sender, RoutedEventArgs e)
         {
-            CMSManip myCMSManip = new CMSManip();
+            HWEmails myHWEmails = new HWEmails();
+            myHWEmails.Show();
         }
     }
 }

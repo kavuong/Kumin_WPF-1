@@ -7,17 +7,17 @@
         mc:Ignorable="d"
         Title="HWEmails" Height="300" Width="500">
     <Grid>
-        <DataGrid x:Name="dgdEmails" HorizontalAlignment="Left" VerticalAlignment="Top" Height="210" Width="472" Margin="10,49,0,0" BorderThickness="1" AutoGenerateColumns="False">
+        <DataGrid x:Name="dgdEmails" CanUserAddRows="False" HorizontalAlignment="Left" VerticalAlignment="Top" Height="210" Width="472" Margin="10,49,0,0" BorderThickness="1" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" IsReadOnly="True" Width="100"/>
-                <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Name" IsReadOnly="True" Width="100"/>
-                <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Completed" IsReadOnly="True" Width="100"/>
-                <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Missing" IsReadOnly="True" Width="100"/>
+                <DataGridTextColumn Binding="{Binding FirstName}" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" IsReadOnly="True" Width="100"/>
+                <DataGridTextColumn Binding="{Binding LastName}" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Name" IsReadOnly="True" Width="100"/>
+                <DataGridTextColumn Binding="{Binding #Completed}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Completed" IsReadOnly="True" Width="100"/>
+                <DataGridTextColumn Binding="{Binding #Missing}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Missing" IsReadOnly="True" Width="100"/>
                 <DataGridCheckBoxColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="Send?" Width="50"/>
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="btnSendEmails" Content="Send Emails" HorizontalAlignment="Center" Margin="390,10,10,0" VerticalAlignment="Top" Width="92" Height="34" BorderThickness="0" FontFamily="Lucida Sans" Click="btnSendEmails_Click"/>
         <DatePicker x:Name="dpkDate" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Height="24" FontFamily="Lucida Sans" SelectedDateChanged="dpkDate_SelectedDateChanged"/>
-        <Button x:Name="btnToday" Content="Today" HorizontalAlignment="Left" Margin="123,11,0,0" VerticalAlignment="Top" Width="39" Height="24" BorderThickness="0" FontFamily="Lucida Sans"/>
+        <Button x:Name="btnToday" Content="Today" HorizontalAlignment="Left" Margin="123,11,0,0" VerticalAlignment="Top" Width="39" Height="24" BorderThickness="0" FontFamily="Lucida Sans" Click="btnToday_Click"/>
     </Grid>
 </Window>

@@ -78,7 +78,7 @@
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="btnCMSManip" Content="Get CMS Changes" HorizontalAlignment="Left" Margin="652,105,0,0" FontFamily="Lucida Sans" VerticalAlignment="Top" Width="112" Height="25" BorderThickness="0" Click="btnCMSManip_Click"/>
-        <Button x:Name="btnHWEmail" Content="Send HW Emails" HorizontalAlignment="Left" Margin="769,105,0,0" FontFamily="Lucida Sans" VerticalAlignment="Top" Width="112" Height="25" BorderThickness="0"/>
+        <Button x:Name="btnHWEmail" Content="Send HW Emails" HorizontalAlignment="Left" Margin="769,105,0,0" FontFamily="Lucida Sans" VerticalAlignment="Top" Width="112" Height="25" BorderThickness="0" Click="btnHWEmail_Click"/>
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="69" Margin="642,66,0,0" VerticalAlignment="Top" Width="248"/>
         <Label x:Name="lblAdminTools" FontFamily="Lucida Sans" HorizontalContentAlignment="Center" FontSize="15" Content="Admin Tools" HorizontalAlignment="Left" Margin="713,72,0,0" VerticalAlignment="Top" Width="106"/>
     </Grid>

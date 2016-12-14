@@ -44,10 +44,10 @@ namespace KumIn_WPF
 
 
 
-        private void dpkDate_SelectedDateChanged(object sender, CalendarDateChangedEventArgs e)
+        private void dpkDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             int rowNum = emailConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!A1:A"
-                , dpkDate.SelectedDate.Value.ToString("mm/dd/yyyy"));
+                , dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
             IList<IList<Object>> desiredDate = emailConnection.get(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD
                 + "!A" + rowNum.ToString() + ":B" + rowNum.ToString());
 
@@ -83,6 +83,11 @@ namespace KumIn_WPF
                 }
 
             }
+
+            int dateRowNum = emailConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!A1:A", dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
+            List<Object> processed = new List<object> { "Processed" };
+            emailConnection.update(processed, ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!B" + dateRowNum.ToString());
+            MessageBox.Show("Emails for " + dpkDate.SelectedDate.Value.ToString("MM/dd") + " processed");
         }
 
 
@@ -104,10 +109,10 @@ namespace KumIn_WPF
                 mail.From = new MailAddress("kumonsrn@gmail.com");
                 mail.To.Add(email); // reg email
                 mail.Subject = "Kumon HW notification";
-                mail.Body = "Dear KUMON Parents,\n Your child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
-                "attended center session today and turned in " + drv["#Completed"].ToString() +
+                mail.Body = "Dear KUMON Parents,\n \n Your child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
+                ", attended center session today and turned in " + drv["#Completed"].ToString() +
                 " assignment(s). We are still missing " + drv["#Missing"].ToString() +
-                " of his/her assignment(s).\n Per " +
+                " of his/her assignment(s).\n \n Per " +
                 "your request, this automated message is sent to notify you of the " +
                 "missing homework. Although it's common that students will miss an assignment " +
                 "from time to time due to various activities, we hope these notifications will " +
@@ -155,12 +160,19 @@ namespace KumIn_WPF
                         newStudent["Email"] = studentRecord[0][3].ToString();
 
                         emailTable.Rows.Add(newStudent);
+                        dgdEmails.ItemsSource = emailTable.DefaultView;
+
                     }
 
                     populate(rowNum + 1);
                 }
+                
             }
         }
-    
+
+        private void btnToday_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
