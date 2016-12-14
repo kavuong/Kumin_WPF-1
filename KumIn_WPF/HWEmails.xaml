@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         Title="HWEmails" Height="300" Width="500">
     <Grid>
+        <Grid.Resources>
+            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+        </Grid.Resources>
         <DataGrid x:Name="dgdEmails" CanUserAddRows="False" HorizontalAlignment="Left" VerticalAlignment="Top" Height="210" Width="472" Margin="10,49,0,0" BorderThickness="1" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding FirstName}" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" IsReadOnly="True" Width="100"/>

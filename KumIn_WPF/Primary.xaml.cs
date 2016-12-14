@@ -248,31 +248,13 @@ namespace KumIn_WPF
                 {
                     // Populate display after checking firstname, lastname, number
                     if (!isSignedIn(new string[CONFIRMATION_INPUT] {
-                        "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName }))
+                        "A" + (int.Parse(myConfirm.Number)).ToString("D4"), myConfirm.FirstName, myConfirm.LastName }))
                     {
                         populateDataGrid(new string[CONFIRMATION_INPUT] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
                     }
                     else // confirm signout then do it
                     {
-                        int studentRowNum = 0;
-                        foreach (DataRow row in dummyTable.Rows)
-                        {
-                            string barcode = row["Barcode"].ToString();
-                            if ("A" + txtUpdate.Text == barcode)
-                                break;
-                            else
-                                studentRowNum++;
-                        }
-                        DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[studentRowNum]["InTime"].ToString());
-                        if (DateTime.Now - timeIn > new TimeSpan(0, 1, 0))
-                        {
-                            signOut(new string[CONFIRMATION_INPUT] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
-                        }
-                        else if (MessageBox.Show("Student was recently signed in, sign out already?"
-                            , "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                        {
-                            signOut(new string[CONFIRMATION_INPUT] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
-                        }
+                        MessageBox.Show("Student is already signed in. Click button to sign out");
                     }
                     // Throw error if not found.
                 }
@@ -287,24 +269,7 @@ namespace KumIn_WPF
                 }
                 else // confirm signout then do it
                 {
-                    int studentRowNum = 0;
-                    foreach (DataRow row in dummyTable.Rows)
-                    {
-                        if (txtUpdate.Text == row["Barcode"].ToString())
-                            break;
-                        else
-                            studentRowNum++;
-                    }
-                    DateTime timeIn = Convert.ToDateTime(dummyTable.Rows[studentRowNum]["InTime"].ToString());
-                    if (DateTime.Now - timeIn > new TimeSpan(0,1,0))
-                    {
-                        signOut(new string[1] { txtUpdate.Text });
-                    }
-                    else if (MessageBox.Show("Student was recently signed in, sign out already?"
-                        , "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        signOut(new string[1] { txtUpdate.Text });
-                    }
+                    MessageBox.Show("Student is already signed in. Click button to sign out");
                 }                
             }            
         }

@@ -51,18 +51,26 @@ namespace KumIn_WPF
             IList<IList<Object>> desiredDate = emailConnection.get(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD
                 + "!A" + rowNum.ToString() + ":B" + rowNum.ToString());
 
-            if (desiredDate[0].Count == 1)
+
+            if (desiredDate != null)
             {
-                populate(rowNum + 1);
+                if (desiredDate[0].Count == 1)
+                {
+                    populate(rowNum + 1);
+                    if (emailTable.Rows.Count == 0)
+                        MessageBox.Show("All students have completed their homework for this day!");
+                }
+                else if (desiredDate[0].Count == 2)
+                {
+                    MessageBox.Show("Emails for this date have already been processed. Select a new date.");
+                }
             }
-            else if (desiredDate[0].Count == 2)
-            {
-                MessageBox.Show("Emails for this date have already been processed. Select a new date.");
-            }
-            else if (desiredDate[0] == null)
+            else
             {
                 MessageBox.Show("No students in record for selected date. Try again.");
             }
+
+
         }
 
 
@@ -84,8 +92,11 @@ namespace KumIn_WPF
 
             }
 
-            int dateRowNum = emailConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!A1:A", dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
-            List<Object> processed = new List<object> { "Processed" };
+            int dateRowNum = emailConnection.getRowNum(ATTENDANCE_SHEET
+                , ATTENDANCE_SHEET_RECORD + "!A1:A", dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
+            List < Object > processed = new List<object> { "Processed" };
+
+
             emailConnection.update(processed, ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!B" + dateRowNum.ToString());
             MessageBox.Show("Emails for " + dpkDate.SelectedDate.Value.ToString("MM/dd") + " processed");
         }
@@ -109,14 +120,14 @@ namespace KumIn_WPF
                 mail.From = new MailAddress("kumonsrn@gmail.com");
                 mail.To.Add(email); // reg email
                 mail.Subject = "Kumon HW notification";
-                mail.Body = "Dear KUMON Parents,\n \n Your child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
+                mail.Body = "Dear KUMON Parents,\nYour child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
                 ", attended center session today and turned in " + drv["#Completed"].ToString() +
                 " assignment(s). We are still missing " + drv["#Missing"].ToString() +
-                " of his/her assignment(s).\n \n Per " +
+                " of his/her assignment(s).\n\nPer " +
                 "your request, this automated message is sent to notify you of the " +
                 "missing homework. Although it's common that students will miss an assignment " +
                 "from time to time due to various activities, we hope these notifications will " +
-                "help you identify whether your child is chronically missing homework. \n\n Regards, \n KUMON San Ramon North \n 925-318-1628";
+                "help you identify whether your child is chronically missing homework.\n\nRegards,\nKUMON San Ramon North\n925-318-1628";
                 SmtpServer.Port = 587;
                 SmtpServer.Credentials = new System.Net.NetworkCredential("kumonsrn@gmail.com"
                     , "letmeout");
@@ -161,12 +172,10 @@ namespace KumIn_WPF
 
                         emailTable.Rows.Add(newStudent);
                         dgdEmails.ItemsSource = emailTable.DefaultView;
-
                     }
 
                     populate(rowNum + 1);
                 }
-                
             }
         }
 
@@ -174,5 +183,6 @@ namespace KumIn_WPF
         {
 
         }
+    
     }
 }

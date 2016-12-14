@@ -46,21 +46,14 @@
 
         <DataGrid x:Name="dgdListing" Background="Transparent" CanUserAddRows="False" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top" Height="274" Width="972" BorderThickness="0" AutoGenerateColumns="False" SelectionChanged="dgdListing_SelectionChanged">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding FirstName}"  ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding LastName}" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Name" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding InTime}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="In Time"/>
-                <DataGridTextColumn Binding="{Binding Duration}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Duration" />
-                <DataGridTextColumn Binding="{Binding LastDay}" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Day"/>
+                <DataGridTextColumn Binding="{Binding FirstName}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" />
+                <DataGridTextColumn Binding="{Binding LastName}" IsReadOnly="True" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Name" />
+                <DataGridTextColumn Binding="{Binding InTime}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="In Time"/>
+                <DataGridTextColumn Binding="{Binding Duration}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Duration" />
+                <DataGridTextColumn Binding="{Binding LastDay}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Day"/>
                 <DataGridTextColumn Binding="{Binding #Completed}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Completed"/>
                 <DataGridTextColumn Binding="{Binding #Missing}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Missing"/>
-                <DataGridTextColumn Binding="{Binding #Subjects}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Subjects"/>
-                <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="HW Email?">
-                    <DataGridCheckBoxColumn.CellStyle>
-                        <Style>
-                            <EventSetter Event="CheckBox.Checked" Handler="onHomeworkChecked"/>
-                        </Style>
-                    </DataGridCheckBoxColumn.CellStyle>
-                </DataGridCheckBoxColumn>
+                <DataGridTextColumn Binding="{Binding #Subjects}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Subjects" />
                 <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="Out Email?">
                     <DataGridCheckBoxColumn.CellStyle>
                         <Style>
