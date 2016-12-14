@@ -671,7 +671,9 @@ namespace KumIn_WPF
             }
         }              
 
-        private void btnCMSManip_Click(object sender, RoutedEventArgs e) { }
+        private void btnCMSManip_Click(object sender, RoutedEventArgs e) {
+            CMSManip myCMSManip = new CMSManip();
+        }
 
 
 
@@ -722,9 +724,10 @@ namespace KumIn_WPF
 
         }
 
-        private void btnCMSManip_Click(object sender, RoutedEventArgs e)
+        private void btnHWEmail_Click(object sender, RoutedEventArgs e)
         {
-            CMSManip myCMSManip = new CMSManip();
+            HWEmails myHWEmails = new HWEmails();
+            myHWEmails.Show();
         }
     }
 }
