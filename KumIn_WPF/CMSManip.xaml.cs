@@ -62,7 +62,7 @@ namespace KumIn_WPF
 
 
             if (studentRecord[0].Count >= ASSIGNSHEET_CMSMANIP 
-                && studentRecord[0][ASSIGNSHEET_CMSMANIP] != null)              // trigger for all records updated 
+                && studentRecord[0][ASSIGNSHEET_CMSMANIP].ToString() !=  "")              // trigger for all records updated 
             {
                 foreach (var row in studentRecord)
                 {

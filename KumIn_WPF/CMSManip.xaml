@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KumIn_WPF"
         mc:Ignorable="d"
-        Title="CMSManip" Height="358" Width="309">
+        Title="CMSManip" Height="358" Width="320">
     <Window.Resources>
         <Style TargetType="{x:Type DataGridCell}">
             <Style.Setters>
@@ -13,7 +13,7 @@
             </Style.Setters>
         </Style>
     </Window.Resources>
-    <Grid HorizontalAlignment="Left" Width="288">
+    <Grid HorizontalAlignment="Left" Width="310">
         <Grid.Resources>
             <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
         </Grid.Resources>
@@ -21,7 +21,7 @@
             <ColumnDefinition Width="197*"/>
             <ColumnDefinition Width="91*"/>
         </Grid.ColumnDefinitions>
-        <DataGrid AutoGenerateColumns="False" x:Name="dgdListing" IsReadOnly="True" HorizontalAlignment="Left" Margin="10,76,-1,0" VerticalAlignment="Top" Height="241" Width="279" Grid.ColumnSpan="2" RenderTransformOrigin="0.5,0.5">
+        <DataGrid AutoGenerateColumns="False" x:Name="dgdListing" IsReadOnly="True" HorizontalAlignment="Left" Margin="10,76,0,0" VerticalAlignment="Top" Height="241" Width="290" Grid.ColumnSpan="2" RenderTransformOrigin="0.5,0.5">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding NumAssign}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="#" Width="35" HeaderStringFormat="" FontFamily="Lucida Sans" FontSize="20"/>
                 <DataGridTextColumn Binding="{Binding Assigned}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Assigned:" Width="65" FontFamily="Lucida Sans" FontSize="18" CanUserReorder="False"/>

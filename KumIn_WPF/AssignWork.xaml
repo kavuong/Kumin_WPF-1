@@ -18,13 +18,15 @@
         <Grid.Resources>
             <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
         </Grid.Resources>
-        <TextBox x:Name="txtNumAssign" HorizontalAlignment="Left" Height="25" Margin="461,158,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtNumAssign_TextChanged"/>
-        <TextBox x:Name="txtStartDate" HorizontalAlignment="Left" Height="25" Margin="461,188,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtStartDate_TextChanged"/>
+        <TextBox x:Name="txtBarcode" KeyDown="txtBarcode_KeyDown" HorizontalAlignment="Left" Height="23" Margin="365,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="217"/>
         <ComboBox x:Name="cbxSubject" SelectedValue="{Binding Subject, ElementName=window}" HorizontalAlignment="Left" Margin="461,128,0,0" VerticalAlignment="Top" Width="120" Height="25">
             <ComboBoxItem Name="cbi0">None</ComboBoxItem>
             <ComboBoxItem Name="cbi1">Math</ComboBoxItem>
             <ComboBoxItem Name="cbi2">Reading</ComboBoxItem>
         </ComboBox>
+        <TextBox x:Name="txtNumAssign" HorizontalAlignment="Left" Height="25" Margin="461,158,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtNumAssign_TextChanged"/>
+        <TextBox x:Name="txtStartDate" HorizontalAlignment="Left" Height="25" Margin="461,188,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtStartDate_TextChanged"/>
+        <TextBox x:Name="txtLevel" HorizontalAlignment="Left" Height="24" Margin="461,218,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtLevel_TextChanged"/>
         <TextBox x:Name="txtStartPage" HorizontalAlignment="Left" Height="25" Margin="461,247,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtStartPage_TextChanged"/>
         <ComboBox x:Name="cbxPattern" SelectedValue="{Binding Pattern, ElementName=window}" HorizontalAlignment="Left" Margin="461,277,0,0" VerticalAlignment="Top" Width="120" Height="25">
             <ComboBoxItem Name="cbp0">None</ComboBoxItem>
@@ -61,14 +63,12 @@
         <Label x:Name="lblStartPage" HorizontalContentAlignment="Center" Content="Start Page:" HorizontalAlignment="Left" Margin="365,247,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
         <Label x:Name="lblPattern" HorizontalContentAlignment="Center" Content="Pattern:" HorizontalAlignment="Left" Margin="365,277,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
         <Label x:Name="lblDayOff" HorizontalContentAlignment="Center" Content="Day Off:" HorizontalAlignment="Left" Margin="365,307,0,0" VerticalAlignment="Top" Height="25" Width="91" FontFamily="Lucida Sans"/>
-        <TextBox x:Name="txtBarcode" KeyDown="txtBarcode_KeyDown" HorizontalAlignment="Left" Height="23" Margin="365,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="217"/>
         <Label x:Name="lblBarcode" Content="Barcode:" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="441,26,0,0" VerticalAlignment="Top" Width="75" FontFamily="Lucida Sans"/>
         <Label x:Name="lblName" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,14,0,0" VerticalAlignment="Top" Width="350" Height="40" FontFamily="Lucida Sans" FontSize="25" FontWeight="SemiBold"/>
         <Label x:Name="lblDateRange" HorizontalContentAlignment="Right" HorizontalAlignment="Left" Margin="185,64,0,0" VerticalAlignment="Top" Height="40" Width="175" FontFamily="Lucida Sans" FontSize="19"/>
         <Label x:Name="lblSubjectBig" Content="{Binding Path=Subject, ElementName=window}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Height="40" Width="175" FontFamily="Lucida Sans" FontSize="20"/>
-        <Button x:Name="btnPrintRecord" Content="Print and Record" HorizontalAlignment="Left" Margin="443,398,0,0" VerticalAlignment="Top" Width="120" Height="50" Click="btnPrintRecord_Click" BorderThickness="0"/>
-        <TextBox x:Name="txtLevel" HorizontalAlignment="Left" Height="24" Margin="461,218,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="txtLevel_TextChanged"/>
         <CheckBox x:Name="chxCMSManip" Content="CMS Manipulation Needed" HorizontalAlignment="Left" Margin="386,352,0,0" VerticalAlignment="Top" Height="24" Width="196" FontFamily="Lucida Sans" FontSize="13" BorderThickness="1"/>
+        <Button x:Name="btnPrintRecord" Content="Print and Record" HorizontalAlignment="Left" Margin="443,398,0,0" VerticalAlignment="Top" Width="120" Height="50" Click="btnPrintRecord_Click" BorderThickness="0"/>
 
     </Grid>
 </Window>

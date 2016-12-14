@@ -250,11 +250,14 @@ namespace KumIn_WPF
                     if (!isSignedIn(new string[CONFIRMATION_INPUT] {
                         "A" + (int.Parse(myConfirm.Number)).ToString("D4"), myConfirm.FirstName, myConfirm.LastName }))
                     {
-                        populateDataGrid(new string[CONFIRMATION_INPUT] { "A" + myConfirm.Number, myConfirm.FirstName, myConfirm.LastName });
+                        populateDataGrid(new string[CONFIRMATION_INPUT] { "A" + (int.Parse(myConfirm.Number)).ToString("D4")
+                            , myConfirm.FirstName, myConfirm.LastName });
                     }
                     else // confirm signout then do it
                     {
                         MessageBox.Show("Student is already signed in. Click button to sign out");
+                        txtUpdate.Clear();
+                        txtUpdate.Focus();
                     }
                     // Throw error if not found.
                 }
@@ -270,6 +273,8 @@ namespace KumIn_WPF
                 else // confirm signout then do it
                 {
                     MessageBox.Show("Student is already signed in. Click button to sign out");
+                    txtUpdate.Clear();
+                    txtUpdate.Focus();
                 }                
             }            
         }
