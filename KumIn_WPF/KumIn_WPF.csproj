@@ -104,6 +104,9 @@
     <Compile Include="CMSManip.xaml.cs">
       <DependentUpon>CMSManip.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HWEmails.xaml.cs">
+      <DependentUpon>HWEmails.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SpreadsheetConnection.cs" />
     <Page Include="AssignWork.xaml">
       <SubType>Designer</SubType>
@@ -114,6 +117,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Confirmation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HWEmails.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

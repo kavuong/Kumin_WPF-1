@@ -36,9 +36,13 @@ namespace KumIn_WPF
 
             dtListing.Columns.Add("NumAssign");
             dtListing.Columns.Add("Assigned");
-            dtListing.Columns.Add("Completed");
             dtListing.Columns.Add("Level");
             dtListing.Columns.Add("Sheet#");
+
+            this.Show();
+            populate(CMSConnection.getRowNum(ASSIGNMENT_SHEET, ASSIGNMENT_SHEET_RECORDS + "!M1:M", "CMS"));
+
+
         }
 
 
@@ -51,39 +55,68 @@ namespace KumIn_WPF
 
         public void populate(int rowNum)
         {
+            dtListing.Clear();
             string studentCells = ASSIGNMENT_SHEET_RECORDS + 
                 "!A" + rowNum.ToString() + ":AAA" + rowNum.ToString();
             IList<IList<Object>> studentRecord = CMSConnection.get(ASSIGNMENT_SHEET, studentCells);
 
-            foreach (var row in studentRecord)
+
+            if (studentRecord[0].Count >= ASSIGNSHEET_CMSMANIP 
+                && studentRecord[0][ASSIGNSHEET_CMSMANIP] != null)              // trigger for all records updated 
             {
-                lblName.Content = row[2].ToString() + row[1].ToString();
-                lblSubject.Content = row[4];
-
-                int cellIndex = ASSIGNSHEET_CMSMANIP + 1;
-                for (int i = 0; i < int.Parse(row[ASSIGNSHEET_NUMASSIGN].ToString()); i++)
+                foreach (var row in studentRecord)
                 {
-                    DataRow dr = dtListing.NewRow();
-                    string[] levelSheet = row[cellIndex + 1].ToString().Split(' ');
+                    lblName.Content = row[2].ToString() + " " + row[1].ToString();
+                    lblSubject.Content = row[4];
+
+                    int cellIndex = ASSIGNSHEET_CMSMANIP + 1;
+                    for (int i = 0; i < int.Parse(row[ASSIGNSHEET_NUMASSIGN].ToString()); i++)
+                    {
+                        DataRow dr = dtListing.NewRow();
+                        string[] levelSheet = row[cellIndex + 1].ToString().Split(' ');
 
 
-                    dr["NumAssign"] = i;
-                    dr["Assigned"] = row[cellIndex];
-                    dr["Level"] = levelSheet[0];
-                    dr["Sheet#"] = levelSheet[1];
+                        dr["NumAssign"] = i + 1;
+                        dr["Assigned"] = row[cellIndex];
+                        dr["Level"] = levelSheet[0];
+                        dr["Sheet#"] = levelSheet[1];
 
-                    cellIndex += 2;
+                        cellIndex += 2;
+
+                        dtListing.Rows.Add(dr);
+                    }
+                    dgdListing.ItemsSource = dtListing.DefaultView;
+                    lblDateRange.Content = dtListing.Rows[0][1].ToString() + "-"
+                        + dtListing.Rows[int.Parse(row[ASSIGNSHEET_NUMASSIGN].ToString()) - 1][1].ToString();
                 }
-                dgdListing.ItemsSource = dtListing.DefaultView;
-                lblDateRange.Content = dtListing.Rows[0][1].ToString() + "-"
-                    + dtListing.Rows[int.Parse(row[ASSIGNSHEET_NUMASSIGN].ToString()) - 1][1].ToString();
             }
-
+            else
+            {
+                MessageBox.Show("All student records are up to date!");
+                this.Close();
+            }
         }
+
+
+
+
+
+
 
         private void btnNextRecord_Click(object sender, RoutedEventArgs e)
         {
+            int currentRowNum = CMSConnection.getRowNum(ASSIGNMENT_SHEET
+                , ASSIGNMENT_SHEET_RECORDS + "!M1:M", "CMS");
+            int nextRowNum;
+            List<Object> clear = new List<object>() { "" };
 
+
+            CMSConnection.update(clear, ASSIGNMENT_SHEET, ASSIGNMENT_SHEET_RECORDS + "!M" + currentRowNum);
+
+            nextRowNum = CMSConnection.getRowNum(ASSIGNMENT_SHEET
+                , ASSIGNMENT_SHEET_RECORDS + "!M1:M", "CMS");
+
+            populate(nextRowNum);
         }
     }
 }

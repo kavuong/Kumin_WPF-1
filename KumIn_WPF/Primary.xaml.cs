@@ -101,36 +101,44 @@ namespace KumIn_WPF
         public const int FIRST_CHARACTER_INDEX = 0;
         public Primary()
         {
-            InitializeComponent();
-
-            dummyTable.Columns.Add("FirstName");
-            dummyTable.Columns.Add("LastName");
-            dummyTable.Columns.Add("InTime");
-            dummyTable.Columns.Add("Duration");
-            dummyTable.Columns.Add("LastDay");
-            dummyTable.Columns.Add("#Completed");
-            dummyTable.Columns.Add("#Missing");
-            dummyTable.Columns.Add("Barcode");
-            dummyTable.Columns.Add("#Subjects");
-
-            TimeLabel = timeNow.ToString("f");
-
-            
-            DispatcherTimer myTimer = new DispatcherTimer();
-            myTimer.Interval = new TimeSpan(0, 0, TIMER_CYCLE);
-            myTimer.Tick += new EventHandler(myTimer_Tick);
-            myTimer.Start();
-
-            string centerDates = ATTENDANCE_SHEET_PERM_RECORD + "!A1:A";
-
-
-            if (!kuminConnection.isValuePresent(ATTENDANCE_SHEET, centerDates, DateTime.Now.ToString("MM/dd/yyyy"))) 
+            try
             {
-                List<Object> date = new List<object>() { DateTime.Now.ToString("MM/dd/yyyy") };
-                kuminConnection.append(date, ATTENDANCE_SHEET, centerDates);
-            }
+                InitializeComponent();
 
-            this.dgdListing.CellEditEnding += new EventHandler<DataGridCellEditEndingEventArgs>(dgdListing_CellEditEnding);
+                dummyTable.Columns.Add("FirstName");
+                dummyTable.Columns.Add("LastName");
+                dummyTable.Columns.Add("InTime");
+                dummyTable.Columns.Add("Duration");
+                dummyTable.Columns.Add("LastDay");
+                dummyTable.Columns.Add("#Completed");
+                dummyTable.Columns.Add("#Missing");
+                dummyTable.Columns.Add("Barcode");
+                dummyTable.Columns.Add("#Subjects");
+
+                TimeLabel = timeNow.ToString("f");
+
+
+                DispatcherTimer myTimer = new DispatcherTimer();
+                myTimer.Interval = new TimeSpan(0, 0, TIMER_CYCLE);
+                myTimer.Tick += new EventHandler(myTimer_Tick);
+                myTimer.Start();
+
+                string centerDates = ATTENDANCE_SHEET_PERM_RECORD + "!A1:A";
+
+
+                if (!kuminConnection.isValuePresent(ATTENDANCE_SHEET, centerDates, DateTime.Now.ToString("MM/dd/yyyy")))
+                {
+                    List<Object> date = new List<object>() { DateTime.Now.ToString("MM/dd/yyyy") };
+                    kuminConnection.append(date, ATTENDANCE_SHEET, centerDates);
+                }
+
+                this.dgdListing.CellEditEnding += new EventHandler<DataGridCellEditEndingEventArgs>(dgdListing_CellEditEnding);
+            }
+            catch(System.Net.Http.HttpRequestException ex)
+            {
+                MessageBox.Show("Error: Not connected to the internet, please connect and restart.");
+                this.Close();
+            }
         }
 
 
@@ -311,7 +319,7 @@ namespace KumIn_WPF
 
         private void onHomeworkChecked(object sender, RoutedEventArgs e)
         {
-            sendHomeworkEmail();
+            //sendHomeworkEmail();
         }
 
 
@@ -386,8 +394,8 @@ namespace KumIn_WPF
 
             if (checkValues.Count() == 3)
             {
-                rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, tempColumn1, checkValues[lastNameIndex].ToUpper(), tempColumn2
-                , checkValues[firstNameIndex].ToUpper(), tempColumn3, checkValues[barcodeIndex].ToUpper());
+                rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, tempColumn1, checkValues[lastNameIndex]
+                    , tempColumn2, checkValues[firstNameIndex], tempColumn3, checkValues[barcodeIndex].ToUpper());
             }
             else if (checkValues.Count() == 1)
             {
@@ -423,6 +431,22 @@ namespace KumIn_WPF
             txtUpdate.Text = "";
             txtUpdate.Focus();
         }
+
+
+
+
+
+        
+        private void signOut(object sender, RoutedEventArgs e)
+        {
+            //int rowIndex = dgdListing.ItemContainerGenerator
+            //    .IndexFromContainer((DataGridRow)((FrameworkElement)sender).DataContext);
+            int rowIndex = dgdListing.SelectedIndex;
+            string barcode = dummyTable.Rows[rowIndex]["Barcode"].ToString();
+
+            signOut(new string[] { barcode });
+        }
+
 
 
 
@@ -521,8 +545,7 @@ namespace KumIn_WPF
             {
                 //get rowNum from Assignment Record spreadsheet
                 string assignmentRecordRange;
-                assignmentRecordRowNum = kuminConnection.getRowNum(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!B1:B", lastName
-                    , ASSIGNMENT_RECORD + "!C1:C", firstName);
+                assignmentRecordRowNum = kuminConnection.getRowNum(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!D1:D", barcode);
 
                 assignmentRecordRange = ASSIGNMENT_RECORD + "!A" + assignmentRecordRowNum.ToString() 
                     + ":AAA" + assignmentRecordRowNum.ToString();
@@ -556,73 +579,6 @@ namespace KumIn_WPF
             // Set new last day in to today in assignmentrecord
             List<Object> today = new List<object>() { DateTime.Now.ToString("MM/dd") };
             kuminConnection.update(today, ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!H" + assignmentRecordRowNum);
-        }
-        
-        
-        
-
-        
-        
-                
-        private void sendHomeworkEmail()
-        {
-            try
-            {
-                MailMessage mail = new MailMessage();
-                SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
-                //DataClasses1DataContext db = new DataClasses1DataContext();
-
-                DataRowView drv = (DataRowView) dgdListing.SelectedItem;
-                string firstName = (drv["FirstName"]).ToString();
-                string lastName = (drv["LastName"]).ToString();
-                string email = "";
-                string hwEmailVerif = "";
-                int rowNum = 1;
-                /*
-                var user = (from u in db.FStudentTables
-                            where u.FirstName == firstName && u.LastName == lastName
-                            select u).FirstOrDefault();
-                            */
-
-                IList<IList<Object>> databaseValues = kuminConnection.get(DATABASE_SHEET, DATABASE_SHEET_RECORD + "!A1:Z");
-                
-                if (databaseValues != null && databaseValues.Count > 0)
-                {
-                    rowNum = kuminConnection.getRowNum(DATABASE_SHEET, DATABASE_SHEET_RECORD + 
-                        "!F1:F", firstName, DATABASE_SHEET_RECORD + "H1:H", lastName);                    
-                }
-
-                var myRow = databaseValues[rowNum - 1];
-
-                email = myRow[DATABASE_EMAIL].ToString();
-                hwEmailVerif = myRow[DATABASE_HW1_VERIF].ToString();
-
-                if (hwEmailVerif.ToUpper() == "YES")
-                {
-                    mail.From = new MailAddress("kumonsrn@gmail.com");
-                    mail.To.Add(email); // reg email
-                    mail.Subject = "Kumon HW notification";
-                    mail.Body = "Dear KUMON Parents,\n Your child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
-                    "attended center session today and turned in " + drv["#Completed"].ToString() +
-                    " assignment(s). We are still missing " + drv["#Missing"].ToString() +
-                    " of his/her assignment(s).\n Per " +
-                    "your request, this automated message is sent to notify you of the " +
-                    "missing homework. Although it's common that students will miss an assignment " +
-                    "from time to time due to various activities, we hope these notifications will " +
-                    "help you identify whether your child is chronically missing homework. \n Regards, \n KUMON San Ramon North \n 925-318-1628";
-                    SmtpServer.Port = 587;
-                    SmtpServer.Credentials = new System.Net.NetworkCredential("anthonyluukumon@gmail.com"
-                        , "letmeout");
-                    SmtpServer.EnableSsl = true;
-
-                    SmtpServer.Send(mail);
-                    MessageBox.Show("HW Email Sent", "Success");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString(), "Error");
-            }
         }
 
 
@@ -676,7 +632,7 @@ namespace KumIn_WPF
                     mail1.Subject = "Kumon Reminder";
                     mail1.Body = "Your child - " + firstName + " " + lastName + " - is ready to be picked up";
                     SmtpServer.Port = 587;
-                    SmtpServer.Credentials = new System.Net.NetworkCredential("anthonyluukumon@gmail.com"
+                    SmtpServer.Credentials = new System.Net.NetworkCredential("kumonsrn@gmail.com"
                            , "letmeout");
                     SmtpServer.EnableSsl = true;
                     SmtpServer.Send(mail1);
@@ -684,12 +640,12 @@ namespace KumIn_WPF
 
                 if (phone2 != "" && carrierString2 != "" && pickUpVerif2.ToUpper() == "YES")
                 {
-                    mail2.From = new MailAddress("anthonyluukumon@gmail.com");
+                    mail2.From = new MailAddress("kumonsrn@gmail.com");
                     mail2.To.Add(phone2 + carrierString2); //phone
                     mail2.Subject = "Kumon Reminder";
                     mail2.Body = "Your child - " + firstName + " " + lastName + " - is ready to be picked up";
                     SmtpServer.Port = 587;
-                    SmtpServer.Credentials = new System.Net.NetworkCredential("anthonyluukumon@gmail.com"
+                    SmtpServer.Credentials = new System.Net.NetworkCredential("kumonsrn@gmail.com"
                            , "letmeout");
                     SmtpServer.EnableSsl = true;
                     SmtpServer.Send(mail2);
@@ -712,112 +668,7 @@ namespace KumIn_WPF
             AssignWork myAssignWork = new AssignWork();
             myAssignWork.Show();
         }
-        /*
-        private IList<IList<Object>> getSpreadsheetInfo (string spreadsheetId, string range)
-        {
-            UserCredential credential;
-
-            using (var stream =
-                new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-            {
-                string credPath = System.Environment.GetFolderPath(
-                    System.Environment.SpecialFolder.Personal);
-                credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
-
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            }
-
-            // Create Google Sheets API service.
-            var service = new SheetsService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
-
-            SpreadsheetsResource.ValuesResource.GetRequest request =
-                        service.Spreadsheets.Values.Get(spreadsheetId, range);
-
-            ValueRange response = request.Execute();
-            IList<IList<Object>> values = response.Values;
-            return values;
-        }
-        private void updateSpreadsheetInfo(List<Object> oblist, string spreadsheetId, string range)
-        {
-            List<IList<Object>> values = new List<IList<object>> { oblist };
-
-            ValueRange valueRange = new ValueRange();
-            valueRange.Values = values;
-            UserCredential credential;
-
-            using (var stream =
-                new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-            {
-                string credPath = System.Environment.GetFolderPath(
-                    System.Environment.SpecialFolder.Personal);
-                credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
-
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            }
-
-            // Create Google Sheets API service.
-            var service = new SheetsService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
-
-            SpreadsheetsResource.ValuesResource.UpdateRequest request =
-                        service.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
-            request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-            request.Execute();
-        }
-
-        private void appendSpreadsheetInfo(List<Object> oblist, string spreadsheetId, string range)
-        {
-            List<IList<Object>> values = new List<IList<object>> { oblist };
-
-            ValueRange valueRange = new ValueRange();
-            valueRange.Values = values;
-            UserCredential credential;
-
-            using (var stream =
-                new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-            {
-                string credPath = System.Environment.GetFolderPath(
-                    System.Environment.SpecialFolder.Personal);
-                credPath = System.IO.Path.Combine(credPath, ".credentials/sheets.googleapis.com-kumin-assignment.json");
-
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            }
-
-            // Create Google Sheets API service.
-            var service = new SheetsService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
-
-            SpreadsheetsResource.ValuesResource.AppendRequest request =
-                        service.Spreadsheets.Values.Append(valueRange, spreadsheetId, range);
-            request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
-            request.Execute();
-        }
-        */
+        
 
         private void txtUpdate_KeyDown(object sender, KeyEventArgs e)
         {
@@ -856,6 +707,11 @@ namespace KumIn_WPF
 
             return null;
 
+        }
+
+        private void btnCMSManip_Click(object sender, RoutedEventArgs e)
+        {
+            CMSManip myCMSManip = new CMSManip();
         }
     }
 }

@@ -39,8 +39,12 @@ namespace KumIn_WPF
 
         // Constants
         public const string ASSIGNMENT_SHEET = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
+        public const string DATABASE_SHEET = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";
 
         public const string ASSIGNMENT_SHEET_RECORD = "Test";
+        public const string DATABASE_SHEET_RECORD = "DB-Master";
+
+        public const int DATABASE_BARCODE = 3;
 
         public const int ASSIGNSHEET_FIRSTNAME = 2;
         public const int ASSIGNSHEET_LASTNAME = 1;
@@ -308,16 +312,20 @@ namespace KumIn_WPF
         //************************************************************************
         private void writeData(string[] dateAssign)
         {
+
             string[] name = lblName.Content.ToString().Split(' ');
-            string barcode = name[0].ToUpper() + "-" 
-                + string.Concat(name[1][0], name[1][1]).ToUpper();
+            int studentRowNum = assignConnection.getRowNum(DATABASE_SHEET, DATABASE_SHEET_RECORD
+    + "!F1:F", name[0], DATABASE_SHEET_RECORD + "!H1:H", name[1]);
+
+            string barcode = assignConnection.get(DATABASE_SHEET
+                , DATABASE_SHEET_RECORD + "!D" + studentRowNum.ToString())[0][0].ToString();
             string barcodes = ASSIGNMENT_SHEET_RECORD + "!D1:D";
             string subjectColumn = ASSIGNMENT_SHEET_RECORD + "!E1:E";
             int rowNum = assignConnection.getRowNum(ASSIGNMENT_SHEET
                 , barcodes, barcode, subjectColumn, Subject);
             string studentInfoCells = ASSIGNMENT_SHEET_RECORD + "!B" + rowNum.ToString()
                 + ":E" + rowNum.ToString();
-            string assignmentInfoCells = ASSIGNMENT_SHEET_RECORD + "!H" + rowNum.ToString()
+            string assignmentInfoCells = ASSIGNMENT_SHEET_RECORD + "!I" + rowNum.ToString()
                 + ":AAA" + rowNum.ToString();
             var studentInfo = new List<object>();
             var assignmentInfo = new List<object>();
@@ -333,8 +341,9 @@ namespace KumIn_WPF
             assignmentInfo.Add(txtNumAssign.Text);
             assignmentInfo.Add(Pattern);
             assignmentInfo.Add(DayOff);
+            assignmentInfo.Add(dateAssign[0]);
 
-            for(int i = 0; i < 2 * int.Parse(txtNumAssign.Text); i+=2)
+            for(int i = 1; i <= 2 * int.Parse(txtNumAssign.Text); i+=2)
             {
                 assignmentInfo.Add(dateAssign[i]);
                 assignmentInfo.Add(dateAssign[i + 1]);
