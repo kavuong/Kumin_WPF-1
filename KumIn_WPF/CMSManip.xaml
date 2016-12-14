@@ -5,17 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KumIn_WPF"
         mc:Ignorable="d"
-        Title="CMSManip" Height="358" Width="298">
+        Title="CMSManip" Height="358" Width="309">
+    <Window.Resources>
+        <Style TargetType="{x:Type DataGridCell}">
+            <Style.Setters>
+                <Setter Property="TextBlock.TextAlignment" Value="Center" />
+            </Style.Setters>
+        </Style>
+    </Window.Resources>
     <Grid HorizontalAlignment="Left" Width="288">
+        <Grid.Resources>
+            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="197*"/>
             <ColumnDefinition Width="91*"/>
         </Grid.ColumnDefinitions>
-        <DataGrid x:Name="dgdListing" IsReadOnly="True" HorizontalAlignment="Left" Margin="10,76,0,0" VerticalAlignment="Top" Height="241" Width="268" Grid.ColumnSpan="2"/>
-        <Label x:Name="lblName" Content="Label" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="177" Height="30"/>
-        <Label x:Name="lblSubject" Content="Label" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,45,0,0" VerticalAlignment="Top" Width="81"/>
-        <Label x:Name="lblDateRange" Content="Label" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="105,45,0,0" VerticalAlignment="Top" Width="82"/>
-        <Button x:Name="btnNextRecord" Content="Button" Grid.Column="1" HorizontalAlignment="Left" Margin="10,14,0,0" VerticalAlignment="Top" Width="75" Height="51" BorderThickness="0" Click="btnNextRecord_Click"/>
+        <DataGrid AutoGenerateColumns="False" x:Name="dgdListing" IsReadOnly="True" HorizontalAlignment="Left" Margin="10,76,-1,0" VerticalAlignment="Top" Height="241" Width="279" Grid.ColumnSpan="2" RenderTransformOrigin="0.5,0.5">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding NumAssign}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="#" Width="35" HeaderStringFormat="" FontFamily="Lucida Sans" FontSize="20"/>
+                <DataGridTextColumn Binding="{Binding Assigned}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Assigned:" Width="65" FontFamily="Lucida Sans" FontSize="18" CanUserReorder="False"/>
+                <DataGridTextColumn Binding="{Binding Level}" CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" Header="Level:" Width="50" FontSize="25"/>
+                <DataGridTextColumn Binding="{Binding Sheet#}"  CanUserSort="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Sheet #:" Width="120" FontFamily="Lucida Sans" FontSize="25"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label x:Name="lblName" FontFamily="Lucida Sans" FontSize="17" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="177" Height="30"/>
+        <Label x:Name="lblSubject" FontFamily="Lucida Sans" FontSize="13" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,45,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <Label x:Name="lblDateRange" FontFamily="Lucida Sans" FontSize="13" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="81,45,0,0" VerticalAlignment="Top" Width="106" Height="26"/>
+        <Button x:Name="btnNextRecord" Content="Next Record" Grid.Column="1" FontFamily="Lucida Sans" HorizontalAlignment="Left" Margin="10,14,0,0" VerticalAlignment="Top" Width="81" Height="51" BorderThickness="0" Click="btnNextRecord_Click"/>
 
     </Grid>
 </Window>
