@@ -235,24 +235,22 @@ namespace KumIn_WPF
         {
             if (txtBarcode.Text != "" && Subject != "")
             {
+                string barcodes = ASSIGNMENT_SHEET_RECORD + "!D1:D";
+                string subjectColumn = ASSIGNMENT_SHEET_RECORD + "!E1:E";
+                string sheetCells;
+                IList<IList<Object>> sheet;
+
+                bool found = assignConnection.isValuePresent(ASSIGNMENT_SHEET
+                    , barcodes, Barcode);
+                int rowNum = assignConnection.getRowNum(ASSIGNMENT_SHEET, barcodes
+    , Barcode, subjectColumn, Subject);
+
+
+                sheetCells = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
+                sheet = assignConnection.get(ASSIGNMENT_SHEET, sheetCells);
+
                 try
                 {
-                    string barcodes = ASSIGNMENT_SHEET_RECORD + "!D1:D";
-                    string subjectColumn = ASSIGNMENT_SHEET_RECORD + "!E1:E";
-                    string sheetCells;
-                    IList<IList<Object>> sheet;
-
-                    bool found = assignConnection.isValuePresent(ASSIGNMENT_SHEET
-                        , barcodes, Barcode);
-
-                    int rowNum = assignConnection.getRowNum(ASSIGNMENT_SHEET, barcodes
-                        , Barcode, subjectColumn, Subject);
-
-                    
-                    sheetCells = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
-                    sheet = assignConnection.get(ASSIGNMENT_SHEET, sheetCells);
-
-
                     foreach (var row in sheet)
                     {
                         int lastDateIndex = row.Count - 2;
@@ -262,13 +260,13 @@ namespace KumIn_WPF
                             
                         string[] subStringPage;
 
-
+                        lblName.Content = row[ASSIGNSHEET_FIRSTNAME].ToString() + " "
+                            + row[ASSIGNSHEET_LASTNAME].ToString();
                         if (!found)
                             throw new EntryPointNotFoundException();
 
-                        lblName.Content = row[ASSIGNSHEET_FIRSTNAME].ToString() + " "
-                            + row[ASSIGNSHEET_LASTNAME].ToString();
-                        lblSubject.Content = row[ASSIGNSHEET_SUBJECT].ToString();
+
+                        //lblSubject.Content = row[ASSIGNSHEET_SUBJECT].ToString();
                         txtNumAssign.Text = row[ASSIGNSHEET_NUMASSIGN].ToString();
                         txtStartDate.Text = (today).ToString("MM/dd");
 
@@ -793,10 +791,24 @@ namespace KumIn_WPF
                 lblSubjectBig.Content = Subject;
             }
         }
-
+        
         public string Barcode
         {
-            get { return txtBarcode.Text; }
+            get {
+                if (txtBarcode.Text.Length == 5)
+                    return txtBarcode.Text;
+                else if (txtBarcode.Text.Length == 1)
+                    return "A000" + txtBarcode.Text.ToString();
+                else if (txtBarcode.Text.Length == 2)
+                    return "A00" + txtBarcode.Text.ToString();
+                else if (txtBarcode.Text.Length == 3)
+                    return "A0" + txtBarcode.Text.ToString();
+                else if (txtBarcode.Text.Length == 4)
+                    return "A" + txtBarcode.Text.ToString();
+                else
+                    return null;
+                    
+            }
             set { txtBarcode.Text = value; }
         }
     }
