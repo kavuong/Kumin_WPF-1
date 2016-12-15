@@ -27,6 +27,7 @@ namespace KumIn_WPF
         public const string ATTENDANCE_SHEET = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
         public const string ATTENDANCE_SHEET_RECORD = "Record";
 
+        public bool todayButtonClicked = false;
         public HWEmails()
         {
             InitializeComponent();
@@ -50,8 +51,9 @@ namespace KumIn_WPF
                 , dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
             IList<IList<Object>> desiredDate = emailConnection.get(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD
                 + "!A" + rowNum.ToString() + ":B" + rowNum.ToString());
+            
 
-
+            dpkDate.SelectedDateChanged += dpkDate_SelectedDateChanged;
             if (desiredDate != null)
             {
                 if (desiredDate[0].Count == 1)
@@ -94,7 +96,7 @@ namespace KumIn_WPF
 
             int dateRowNum = emailConnection.getRowNum(ATTENDANCE_SHEET
                 , ATTENDANCE_SHEET_RECORD + "!A1:A", dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
-            List < Object > processed = new List<object> { "Processed" };
+            List<Object> processed = new List<object> { "Processed" };
 
 
             emailConnection.update(processed, ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!B" + dateRowNum.ToString());
@@ -141,7 +143,7 @@ namespace KumIn_WPF
             {
                 MessageBox.Show(ex.ToString(), "Error");
             }
-        } 
+        }
 
 
 
@@ -181,8 +183,9 @@ namespace KumIn_WPF
 
         private void btnToday_Click(object sender, RoutedEventArgs e)
         {
-
+                      
         }
     
     }
 }
+

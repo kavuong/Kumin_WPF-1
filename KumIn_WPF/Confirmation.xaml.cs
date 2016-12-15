@@ -27,8 +27,11 @@ namespace KumIn_WPF
 
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
         {
+
             this.DialogResult = true;
             this.Close();
+            
+
         }
 
         public string FirstName

@@ -291,6 +291,11 @@ namespace KumIn_WPF
                 {
                     MessageBox.Show("This student does not exist in records.");
                 }
+                catch (NullReferenceException nEx)
+                {
+                    MessageBox.Show("Please make sure you have inputted the right barcode and subject " 
+                        + "for the student you wish to assign work to.");
+                }
 
                 updateData();
                 txtBarcode.Clear();
