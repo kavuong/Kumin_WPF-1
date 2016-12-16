@@ -230,28 +230,44 @@ namespace KumIn_WPF
             }
 
         }
-        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
 
-        }
         private void txtUpdate_TextChanged(object sender, TextChangedEventArgs e)
         {
 
         }
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
-            // If scanner is not working ==> dialog confirm
-            if (!char.IsLetter(txtUpdate.Text[FIRST_CHARACTER_INDEX]))
+            try
             {
-                Confirmation myConfirm = new Confirmation(txtUpdate.Text);
-                if (myConfirm.ShowDialog() == true)
+                // If scanner is not working ==> dialog confirm
+                if (!char.IsLetter(txtUpdate.Text[FIRST_CHARACTER_INDEX]))
                 {
-                    // Populate display after checking firstname, lastname, number
-                    if (!isSignedIn(new string[CONFIRMATION_INPUT] {
-                        "A" + (int.Parse(myConfirm.Number)).ToString("D4"), myConfirm.FirstName, myConfirm.LastName }))
+                    Confirmation myConfirm = new Confirmation(txtUpdate.Text);
+                    if (myConfirm.ShowDialog() == true)
                     {
-                        populateDataGrid(new string[CONFIRMATION_INPUT] { "A" + (int.Parse(myConfirm.Number)).ToString("D4")
+                        // Populate display after checking firstname, lastname, number
+                        if (!isSignedIn(new string[CONFIRMATION_INPUT] {
+                        "A" + (int.Parse(myConfirm.Number)).ToString("D4"), myConfirm.FirstName, myConfirm.LastName }))
+                        {
+                            populateDataGrid(new string[CONFIRMATION_INPUT] { "A" + (int.Parse(myConfirm.Number)).ToString("D4")
                             , myConfirm.FirstName, myConfirm.LastName });
+                        }
+                        else // confirm signout then do it
+                        {
+                            MessageBox.Show("Student is already signed in. Click button to sign out");
+                            txtUpdate.Clear();
+                            txtUpdate.Focus();
+                        }
+                        // Throw error if not found.
+                    }
+                }
+                // Scanner is working so barcode = 'a' + number
+                else
+                {
+                    // Populate display after checking barcode
+                    if (!isSignedIn(new string[1] { txtUpdate.Text }))
+                    {
+                        populateDataGrid(new string[1] { txtUpdate.Text });
                     }
                     else // confirm signout then do it
                     {
@@ -259,24 +275,17 @@ namespace KumIn_WPF
                         txtUpdate.Clear();
                         txtUpdate.Focus();
                     }
-                    // Throw error if not found.
                 }
             }
-            // Scanner is working so barcode = 'a' + number
-            else
+            catch (IndexOutOfRangeException iEx)
             {
-                // Populate display after checking barcode
-                if (!isSignedIn(new string[1] { txtUpdate.Text }))
-                {
-                    populateDataGrid(new string[1] { txtUpdate.Text });
-                }
-                else // confirm signout then do it
-                {
-                    MessageBox.Show("Student is already signed in. Click button to sign out");
-                    txtUpdate.Clear();
-                    txtUpdate.Focus();
-                }                
-            }            
+                MessageBox.Show("Please enter a barcode.");
+            }
+            catch (NullReferenceException nEx)
+            {
+                MessageBox.Show("For automatic sign-in, please enter a valid barcode. \n\nFor manual sign-in, " +
+                    "please enter your first name, last name and barcode spelled correctly.");
+            }
         }
 
 
