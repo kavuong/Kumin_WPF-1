@@ -19,10 +19,19 @@ namespace KumIn_WPF
     /// </summary>
     public partial class Confirmation : Window
     {
+        SpreadsheetConnection kuminConnection = new SpreadsheetConnection();
+        public const string DATABASE_SHEET = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";
+        public const string DATABASE_SHEET_RECORD = "DB-Master";
+
+        public const int DATABASE_FIRST_NAME = 5;
+        public const int DATABASE_LAST_NAME = 7;
         public Confirmation(string number)
         {
             InitializeComponent();
             Number = number;
+            string[] nameArray = namesDisplayed();
+            lblFirstNameText.Content = nameArray[0];
+            lblLastNameText.Content = nameArray[1];
         }
 
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
@@ -31,23 +40,63 @@ namespace KumIn_WPF
             this.DialogResult = true;
             this.Close();
             
+        }
+
+        private void btnReconfirm_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            MessageBox.Show("Please re-input your barcode.");
+            this.Close();
+        }
+        private string[] namesDisplayed()
+        {
+            int rowNum = kuminConnection.getRowNum(DATABASE_SHEET, DATABASE_SHEET_RECORD + "!D1:D", Barcode);
+            string[] returnArray = new string[2];
+            string studentRowRange = DATABASE_SHEET_RECORD + "!A" + rowNum.ToString() + ":AAA" + rowNum.ToString();
+            var studentRow = kuminConnection.get(DATABASE_SHEET, studentRowRange);
+            foreach (var row in studentRow)
+            {
+                returnArray[0] = row[DATABASE_FIRST_NAME].ToString();
+                returnArray[1] = row[DATABASE_LAST_NAME].ToString();
+            }
+            
+            return returnArray;
 
         }
 
         public string FirstName
         {
-            get { return txtFirstName.Text; }
+            get { return lblFirstNameText.Content.ToString(); }
         }
 
         public string LastName
         {
-            get { return txtLastName.Text; }
+            get { return lblLastNameText.Content.ToString(); }
         }
 
         public string Number
         {
-            get { return txtNumber.Text; }
-            set { txtNumber.Text = value.ToString(); }
+            get { return lblNumberText.Content.ToString(); }
+            set { lblNumberText.Content = value.ToString(); }
         }
+
+        public string Barcode
+        {
+            get
+            {
+                if (Number.Length == 1)
+                    return "A000" + Number.ToString();
+                else if (Number.Length == 2)
+                    return "A00" + Number.ToString();
+                else if (Number.Length == 3)
+                    return "A0" + Number.ToString();
+                else if (Number.Length == 4)
+                    return "A" + Number.ToString();
+                else
+                    throw new NullReferenceException();
+            }
+        }
+
+
     }
 }

@@ -7,13 +7,14 @@
         mc:Ignorable="d"
         Title="Confirmation" Height="208" Width="300">
     <Grid>
-        <TextBox x:Name="txtFirstName" HorizontalAlignment="Left" Height="23" Margin="144,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtLastName" HorizontalAlignment="Left" Height="23" Margin="144,72,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtNumber" HorizontalAlignment="Left" Height="23" Margin="144,100,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Button x:Name="btnSignIn" FontFamily="Lucida Sans" FontSize="14" Content="Update" HorizontalAlignment="Center" Margin="0,137,0,0" VerticalAlignment="Top" Width="85" Height="30" BorderThickness="0" Click="btnSignIn_Click"/>
+        <Button x:Name="btnSignIn" FontFamily="Lucida Sans" FontSize="14" Content="Yes" HorizontalAlignment="Center" Margin="26,137,181,0" VerticalAlignment="Top" Width="85" Height="30" BorderThickness="0" Click="btnSignIn_Click"/>
         <Label x:Name="lblFirstName" FontFamily="Lucida Sans" HorizontalContentAlignment="Center" Content="First Name:" HorizontalAlignment="Left" Margin="34,44,0,0" VerticalAlignment="Top" Height="23" Width="77"/>
         <Label x:Name="lblLastName" FontFamily="Lucida Sans" HorizontalContentAlignment="Center" Content="Last Name:" HorizontalAlignment="Left" Margin="34,72,0,0" VerticalAlignment="Top" Height="23" Width="77"/>
         <Label x:Name="lblNumber" FontFamily="Lucida Sans" HorizontalContentAlignment="Center" Content="Number:" HorizontalAlignment="Left" Margin="34,100,0,0" VerticalAlignment="Top" Height="23" Width="77"/>
-        <TextBlock x:Name="lblConfirm" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" Text="Confirm" VerticalAlignment="Top" FontFamily="Lucida Sans" FontSize="25"/>
+        <TextBlock x:Name="lblConfirm" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" Text="Is This You?" VerticalAlignment="Top" FontFamily="Lucida Sans" FontSize="25"/>
+        <Label x:Name="lblFirstNameText" Content="Label" HorizontalAlignment="Left" Height="23" Margin="128,44,0,0" VerticalAlignment="Top" Width="154" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblLastNameText" Content="Label" HorizontalAlignment="Left" Height="23" Margin="128,72,0,0" VerticalAlignment="Top" Width="154" FontFamily="Lucida Sans"/>
+        <Label x:Name="lblNumberText" Content="Label" HorizontalAlignment="Left" Height="23" Margin="128,100,0,0" VerticalAlignment="Top" Width="154" FontFamily="Lucida Sans"/>
+        <Button x:Name="btnReconfirm" FontFamily="Lucida Sans" FontSize="14" Content="No" HorizontalAlignment="Center" Margin="164,137,43,0" VerticalAlignment="Top" Width="85" Height="30" BorderThickness="0" Click="btnReconfirm_Click"/>
     </Grid>
 </Window>

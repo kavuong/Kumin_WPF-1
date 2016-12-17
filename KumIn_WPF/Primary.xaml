@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KumIn_WPF"
         mc:Ignorable="d"
-        Title="Primary" Height="450" Width="1000">
+        Title="Sign-in" Height="450" Width="1000">
     <Window.Resources>
         <local:YellowConverter x:Key="yconv" />
         <local:RedConverter x:Key="rconv" />
