@@ -276,6 +276,7 @@ namespace KumIn_WPF
                         txtUpdate.Focus();
                     }
                 }
+                txtUpdate.Clear();
             }
             catch (IndexOutOfRangeException iEx)
             {
@@ -425,6 +426,9 @@ namespace KumIn_WPF
             string barcode = dummyTable.Rows[rowIndex]["Barcode"].ToString();
 
             signOut(new string[] { barcode });
+            myTimer_Tick(this, this);
+            MessageBox.Show(dummyTable.Rows[rowIndex]["FirstName"] + " " + dummyTable.Rows[rowIndex]["LastName"] + 
+                " is now signed out. Goodbye!");
         }
 
 
@@ -709,5 +713,8 @@ namespace KumIn_WPF
             HWEmails myHWEmails = new HWEmails();
             myHWEmails.Show();
         }
+
+
+        }
     }
-}
+

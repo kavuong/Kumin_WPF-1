@@ -118,22 +118,34 @@ namespace KumIn_WPF
                 {
                     pages = text.Split('-');
 
-                    if (text.ToUpper() == "C")
-                    {
-                        pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
-                        startPage = int.Parse(pages[0]);
-                        endPage = int.Parse(pages[1]);
+                if (text.ToUpper() == "C")
+                {
+                    pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
+                    startPage = int.Parse(pages[0]);
+                    endPage = int.Parse(pages[1]);
+                    
+                    currentSheet = int.Parse(pages[0]);
+                    dt.Rows[rowIndex]["Level"] = "";
+                    dt.Rows[rowIndex]["Sheet#"] = "Corr. Only";
+                    rowIndex++;
+                }
+                else if (text.ToUpper() == "T")
+                {
+                    pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
+                    startPage = int.Parse(pages[0]);
+                    endPage = int.Parse(pages[1]);
 
-                        currentSheet = int.Parse(pages[0]);
-                        dt.Rows[rowIndex]["Sheet#"] = "Corr. Only";
-                        rowIndex++;
-                    }
-                    else
-                    {
-                        startPage = int.Parse(pages[0]);
-                        endPage = int.Parse(pages[1]);
-                        currentSheet = startPage;
-                    }
+                    currentSheet = int.Parse(pages[0]);
+                    dt.Rows[rowIndex]["Level"] = "";
+                    dt.Rows[rowIndex]["Sheet#"] = "Achievement Test";
+                    rowIndex++;
+                }
+                else
+                {
+                    startPage = int.Parse(pages[0]);
+                    endPage = int.Parse(pages[1]);
+                    currentSheet = startPage;
+                }
 
                     newPattern = getNewPattern(startPage, endPage);
 
