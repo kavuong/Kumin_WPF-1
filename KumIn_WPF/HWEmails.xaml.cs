@@ -47,31 +47,8 @@ namespace KumIn_WPF
 
         private void dpkDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            int rowNum = emailConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!A1:A"
-                , dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
-            IList<IList<Object>> desiredDate = emailConnection.get(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD
-                + "!A" + rowNum.ToString() + ":B" + rowNum.ToString());
-            
 
-            dpkDate.SelectedDateChanged += dpkDate_SelectedDateChanged;
-            if (desiredDate != null)
-            {
-                if (desiredDate[0].Count == 1)
-                {
-                    populate(rowNum + 1);
-                    if (emailTable.Rows.Count == 0)
-                        MessageBox.Show("All students have completed their homework for this day!");
-                }
-                else if (desiredDate[0].Count == 2)
-                {
-                    MessageBox.Show("Emails for this date have already been processed. Select a new date.");
-                }
-            }
-            else
-            {
-                MessageBox.Show("No students in record for selected date. Try again.");
-            }
-
+            selectDate(dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
 
         }
 
@@ -181,9 +158,49 @@ namespace KumIn_WPF
             }
         }
 
+
+
+
+
+
+
         private void btnToday_Click(object sender, RoutedEventArgs e)
         {
-                      
+            selectDate(DateTime.Now.ToString("MM/dd/yyyy"));
+        }
+
+
+
+
+
+
+
+
+        private void selectDate(string date)
+        {
+            int rowNum = emailConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD + "!A1:A"
+                , date);
+            IList<IList<Object>> desiredDate = emailConnection.get(ATTENDANCE_SHEET, ATTENDANCE_SHEET_RECORD
+                + "!A" + rowNum.ToString() + ":B" + rowNum.ToString());
+
+
+            if (desiredDate != null)
+            {
+                if (desiredDate[0].Count == 1)
+                {
+                    populate(rowNum + 1);
+                    if (emailTable.Rows.Count == 0)
+                        MessageBox.Show("All students have completed their homework for this day!");
+                }
+                else if (desiredDate[0].Count == 2)
+                {
+                    MessageBox.Show("Emails for this date have already been processed. Select a new date.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("No students in record for selected date. Try again.");
+            }
         }
     
     }

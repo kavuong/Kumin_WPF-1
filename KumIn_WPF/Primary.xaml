@@ -43,33 +43,34 @@
         <TextBox x:Name="txtUpdate" HorizontalAlignment="Left" Height="25" Margin="578,21,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="239" TextChanged="txtUpdate_TextChanged" KeyDown="txtUpdate_KeyDown" FontFamily="Lucida Sans" FontSize="14" VerticalContentAlignment="Center"/>
         <Label x:Name="lblTime" HorizontalContentAlignment="Center" Content="Current Date and Time" HorizontalAlignment="Left" Margin="204,21,0,0" VerticalAlignment="Top" Width="348" FontFamily="Lucida Sans" FontSize="14"/>
         <Button x:Name="btnAssignWork" Content="Assign Work" HorizontalAlignment="Left" Margin="287,83,0,0" VerticalAlignment="Top" Width="182" Height="25" FontFamily="Lucida Sans" FontSize="14" Padding="0" BorderThickness="0" Click="btnAddNewStudent_Click"/>
-
-        <DataGrid x:Name="dgdListing" Background="Transparent" CanUserAddRows="False" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top" Height="274" Width="972" BorderThickness="0" AutoGenerateColumns="False" SelectionChanged="dgdListing_SelectionChanged">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding FirstName}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" />
-                <DataGridTextColumn Binding="{Binding LastName}" IsReadOnly="True" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Name" />
-                <DataGridTextColumn Binding="{Binding InTime}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="In Time"/>
-                <DataGridTextColumn Binding="{Binding Duration}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Duration" />
-                <DataGridTextColumn Binding="{Binding LastDay}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Day"/>
-                <DataGridTextColumn Binding="{Binding #Completed}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Completed"/>
-                <DataGridTextColumn Binding="{Binding #Missing}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Missing"/>
-                <DataGridTextColumn Binding="{Binding #Subjects}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Subjects" />
-                <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="Out Email?">
-                    <DataGridCheckBoxColumn.CellStyle>
-                        <Style>
-                            <EventSetter Event="CheckBox.Checked" Handler="onOutChecked"/>
-                        </Style>
-                    </DataGridCheckBoxColumn.CellStyle>
-                </DataGridCheckBoxColumn>
-                <DataGridTemplateColumn ClipboardContentBinding="{x:Null}" Header="Sign Out?">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Click="signOut">Sign Out</Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid Name="dgdContainer" Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=ActualWidth}">
+            <DataGrid x:Name="dgdListing" VerticalScrollBarVisibility="Auto" Background="Transparent" CanUserAddRows="False" CanUserResizeRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" HorizontalAlignment="Stretch" Margin="10,135,30,30" VerticalAlignment="Top" BorderThickness="0" AutoGenerateColumns="False" SelectionChanged="dgdListing_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding FirstName}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="First Name" />
+                    <DataGridTextColumn Binding="{Binding LastName}" IsReadOnly="True" CanUserSort="False" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Name" />
+                    <DataGridTextColumn Binding="{Binding InTime}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="In Time"/>
+                    <DataGridTextColumn Binding="{Binding Duration}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Duration" />
+                    <DataGridTextColumn Binding="{Binding LastDay}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontSize="16" FontFamily="Lucida Sans" Header="Last Day"/>
+                    <DataGridTextColumn Binding="{Binding #Completed}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Completed"/>
+                    <DataGridTextColumn Binding="{Binding #Missing}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Missing"/>
+                    <DataGridTextColumn Binding="{Binding #Subjects}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Subjects" />
+                    <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="Out Email?">
+                        <DataGridCheckBoxColumn.CellStyle>
+                            <Style>
+                                <EventSetter Event="CheckBox.Checked" Handler="onOutChecked"/>
+                            </Style>
+                        </DataGridCheckBoxColumn.CellStyle>
+                    </DataGridCheckBoxColumn>
+                    <DataGridTemplateColumn ClipboardContentBinding="{x:Null}" Header="Sign Out?">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Click="signOut">Sign Out</Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
         <Button x:Name="btnCMSManip" Content="Get CMS Changes" HorizontalAlignment="Left" Margin="652,105,0,0" FontFamily="Lucida Sans" VerticalAlignment="Top" Width="112" Height="25" BorderThickness="0" Click="btnCMSManip_Click"/>
         <Button x:Name="btnHWEmail" Content="Send HW Emails" HorizontalAlignment="Left" Margin="769,105,0,0" FontFamily="Lucida Sans" VerticalAlignment="Top" Width="112" Height="25" BorderThickness="0" Click="btnHWEmail_Click"/>
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="69" Margin="642,66,0,0" VerticalAlignment="Top" Width="248"/>
