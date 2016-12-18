@@ -408,8 +408,9 @@ namespace KumIn_WPF
 
             kuminConnection.append(pasteRange, ATTENDANCE_SHEET, addStudentRange);
 
-            txtUpdate.Text = "";
             txtUpdate.Focus();
+            myTimer_Tick(this, this);
+            MessageBox.Show("Goodbye!");
         }
 
 

@@ -114,15 +114,18 @@ namespace KumIn_WPF
                 int currentSheet;
                 string newPattern;
 
-                pages = text.Split('-');
+                try
+                {
+                    pages = text.Split('-');
 
                 if (text.ToUpper() == "C")
                 {
                     pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
                     startPage = int.Parse(pages[0]);
                     endPage = int.Parse(pages[1]);
-
+                    
                     currentSheet = int.Parse(pages[0]);
+                    dt.Rows[rowIndex]["Level"] = "";
                     dt.Rows[rowIndex]["Sheet#"] = "Corr. Only";
                     rowIndex++;
                 }
@@ -144,26 +147,31 @@ namespace KumIn_WPF
                     currentSheet = startPage;
                 }
 
-                newPattern = getNewPattern(startPage, endPage);
+                    newPattern = getNewPattern(startPage, endPage);
 
 
 
-                for (int i = rowIndex; i < dt.Rows.Count; i++)
-                {
-                    int nextSheet;
+                    for (int i = rowIndex; i < dt.Rows.Count; i++)
+                    {
+                        int nextSheet;
 
-                    if (currentSheet > 200)
-                        currentSheet -= 200;
+                        if (currentSheet > 200)
+                            currentSheet -= 200;
 
-                    nextSheet = calculateNextSheet(newPattern, currentSheet);
+                        nextSheet = calculateNextSheet(newPattern, currentSheet);
 
-                    dt.Rows[i]["Sheet#"] = currentSheet.ToString() + "-"
-                        + (nextSheet - 1).ToString();
+                        dt.Rows[i]["Sheet#"] = currentSheet.ToString() + "-"
+                            + (nextSheet - 1).ToString();
 
-                    currentSheet = nextSheet;
+                        currentSheet = nextSheet;
 
+                    }
+                    dgdFormat.ItemsSource = dt.DefaultView;
                 }
-                dgdFormat.ItemsSource = dt.DefaultView;
+                catch(FormatException fEx)
+                {
+                    MessageBox.Show("Make sure to assign some pages for the student");
+                }
             }
         }
 
@@ -806,19 +814,10 @@ namespace KumIn_WPF
         public string Barcode
         {
             get {
-                if (txtBarcode.Text.Length == 5)
+                if (!char.IsDigit(txtBarcode.Text[0]))
                     return txtBarcode.Text;
-                else if (txtBarcode.Text.Length == 1)
-                    return "A000" + txtBarcode.Text.ToString();
-                else if (txtBarcode.Text.Length == 2)
-                    return "A00" + txtBarcode.Text.ToString();
-                else if (txtBarcode.Text.Length == 3)
-                    return "A0" + txtBarcode.Text.ToString();
-                else if (txtBarcode.Text.Length == 4)
-                    return "A" + txtBarcode.Text.ToString();
                 else
-                    return null;
-                    
+                    return "A"+ (int.Parse(txtBarcode.Text)).ToString("D4");   
             }
             set { txtBarcode.Text = value; }
         }
