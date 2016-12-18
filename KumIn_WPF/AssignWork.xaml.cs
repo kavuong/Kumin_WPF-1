@@ -54,6 +54,7 @@ namespace KumIn_WPF
         public const int ASSIGNSHEET_DAYOFF = 11;
         public const int ASSIGNSHEET_PATTERN = 10;
         public const int ASSIGNSHEET_CMSMANIP = 12;
+        public const int ASSIGNSHEET_PICKUP = 8;
 
         public const int DATAGRID_ASSIGNDATE = 1;
         public const int DATAGRID_LEVEL = 3;
@@ -118,34 +119,45 @@ namespace KumIn_WPF
                 {
                     pages = text.Split('-');
 
-                if (text.ToUpper() == "C")
-                {
-                    pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
-                    startPage = int.Parse(pages[0]);
-                    endPage = int.Parse(pages[1]);
-                    
-                    currentSheet = int.Parse(pages[0]);
-                    dt.Rows[rowIndex]["Level"] = "";
-                    dt.Rows[rowIndex]["Sheet#"] = "Corr. Only";
-                    rowIndex++;
-                }
-                else if (text.ToUpper() == "T")
-                {
-                    pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
-                    startPage = int.Parse(pages[0]);
-                    endPage = int.Parse(pages[1]);
+                    if (text.ToUpper() == "C")
+                    {
+                        pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
+                        startPage = int.Parse(pages[0]);
+                        endPage = int.Parse(pages[1]);
 
-                    currentSheet = int.Parse(pages[0]);
-                    dt.Rows[rowIndex]["Level"] = "";
-                    dt.Rows[rowIndex]["Sheet#"] = "Achievement Test";
-                    rowIndex++;
-                }
-                else
-                {
-                    startPage = int.Parse(pages[0]);
-                    endPage = int.Parse(pages[1]);
-                    currentSheet = startPage;
-                }
+                        currentSheet = int.Parse(pages[0]);
+                        dt.Rows[rowIndex]["Level"] = "";
+                        dt.Rows[rowIndex]["Sheet#"] = "Corr. Only";
+                        rowIndex++;
+                    }
+                    else if (text.ToUpper() == "T")
+                    {
+                        pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
+                        startPage = int.Parse(pages[0]);
+                        endPage = int.Parse(pages[1]);
+
+                        currentSheet = int.Parse(pages[0]);
+                        dt.Rows[rowIndex]["Level"] = "";
+                        dt.Rows[rowIndex]["Sheet#"] = "Test Only";
+                        rowIndex++;
+                    }
+                    else if (text.ToUpper() == "H")
+                    {
+                        pages = dt.Rows[rowIndex]["Sheet#"].ToString().Split('-');
+                        startPage = int.Parse(pages[0]);
+                        endPage = int.Parse(pages[1]);
+
+                        currentSheet = int.Parse(pages[0]);
+                        dt.Rows[rowIndex]["Level"] = "";
+                        dt.Rows[rowIndex]["Sheet#"] = "Holiday";
+                        rowIndex++;
+                    }
+                    else
+                    {
+                        startPage = int.Parse(pages[0]);
+                        endPage = int.Parse(pages[1]);
+                        currentSheet = startPage;
+                    }
 
                     newPattern = getNewPattern(startPage, endPage);
 
@@ -168,7 +180,7 @@ namespace KumIn_WPF
                     }
                     dgdFormat.ItemsSource = dt.DefaultView;
                 }
-                catch(FormatException fEx)
+                catch (FormatException fEx)
                 {
                     MessageBox.Show("Make sure to assign some pages for the student");
                 }
@@ -262,61 +274,112 @@ namespace KumIn_WPF
                 bool found = assignConnection.isValuePresent(ASSIGNMENT_SHEET
                     , barcodes, Barcode);
                 int rowNum = assignConnection.getRowNum(ASSIGNMENT_SHEET, barcodes
-    , Barcode, subjectColumn, Subject);
+                    , Barcode, subjectColumn, Subject);
 
 
                 sheetCells = "Test!A" + rowNum.ToString() + ":" + "AAA" + rowNum.ToString();
                 sheet = assignConnection.get(ASSIGNMENT_SHEET, sheetCells);
 
-                try
+                // Same day, so literally read and populate
+                if (sheet[0][ASSIGNSHEET_PICKUP].ToString() == DateTime.Now.ToString("MM/dd"))
                 {
+
                     foreach (var row in sheet)
                     {
-                        int lastDateIndex = row.Count - 2;
-                        DateTime today = Convert.ToDateTime(row[ASSIGNSHEET_LASTDAY])
-                            + new TimeSpan(1, 0, 0, 0);
-                        string[] subStringLevel; 
-                            
+                        string[] subStringLevel;
                         string[] subStringPage;
 
-                        lblName.Content = row[ASSIGNSHEET_FIRSTNAME].ToString() + " "
-                            + row[ASSIGNSHEET_LASTNAME].ToString();
-                        if (!found)
-                            throw new EntryPointNotFoundException();
-
-
-                        //lblSubject.Content = row[ASSIGNSHEET_SUBJECT].ToString();
                         txtNumAssign.Text = row[ASSIGNSHEET_NUMASSIGN].ToString();
-                        txtStartDate.Text = (today).ToString("MM/dd");
+                        txtStartDate.Text = row[ASSIGNSHEET_PICKUP].ToString();
 
-                        subStringLevel = row[ASSIGNSHEET_CMSMANIP + 2 
-                            * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
+                        subStringLevel = row[ASSIGNSHEET_CMSMANIP + 2].ToString().Split(' ');
                         txtLevel.Text = subStringLevel[0];
 
                         subStringPage = subStringLevel[1].Split('-');
                         txtStartPage.Text = (int.Parse(subStringPage[1]) + 1).ToString();
                         cbxPattern.Text = row[ASSIGNSHEET_PATTERN].ToString();
                         cbxDayOff.Text = row[ASSIGNSHEET_DAYOFF].ToString();
+
+                        dt.Clear();
+                        lblName.Content = row[2].ToString() + " " + row[1].ToString();
+                        lblSubjectBig.Content = row[4];
+
+                        int cellIndex = ASSIGNSHEET_CMSMANIP + 1;
+                        for (int i = 0; i < int.Parse(row[ASSIGNSHEET_NUMASSIGN].ToString()); i++)
+                        {
+                            DataRow dr = dt.NewRow();
+                            string[] levelSheet = row[cellIndex + 1].ToString().Split(' ');
+
+
+                            dr["#"] = i + 1;
+                            dr["Assigned"] = row[cellIndex];
+                            dr["Level"] = levelSheet[0];
+                            dr["Sheet#"] = levelSheet[1];
+
+                            cellIndex += 2;
+
+                            dt.Rows.Add(dr);
+                        }
+                        dgdFormat.ItemsSource = dt.DefaultView;
+                        lblDateRange.Content = dt.Rows[0][1].ToString() + "-"
+                            + dt.Rows[int.Parse(row[ASSIGNSHEET_NUMASSIGN].ToString()) - 1][1].ToString();
+                    }
+                }
+
+                // Not same day, so ye.
+                else
+                {
+                    
+
+                    try
+                    {
+                        foreach (var row in sheet)
+                        {
+                            int lastDateIndex = row.Count - 2;
+                            DateTime today = Convert.ToDateTime(row[ASSIGNSHEET_LASTDAY])
+                                + new TimeSpan(1, 0, 0, 0);
+                            string[] subStringLevel;
+
+                            string[] subStringPage;
+
+                            lblName.Content = row[ASSIGNSHEET_FIRSTNAME].ToString() + " "
+                                + row[ASSIGNSHEET_LASTNAME].ToString();
+                            if (!found)
+                                throw new EntryPointNotFoundException();
+
+
+                            //lblSubject.Content = row[ASSIGNSHEET_SUBJECT].ToString();
+                            txtNumAssign.Text = row[ASSIGNSHEET_NUMASSIGN].ToString();
+                            txtStartDate.Text = (today).ToString("MM/dd");
+
+                            subStringLevel = row[ASSIGNSHEET_CMSMANIP + 2
+                                * int.Parse(txtNumAssign.Text)].ToString().Split(' ');
+                            txtLevel.Text = subStringLevel[0];
+
+                            subStringPage = subStringLevel[1].Split('-');
+                            txtStartPage.Text = (int.Parse(subStringPage[1]) + 1).ToString();
+                            cbxPattern.Text = row[ASSIGNSHEET_PATTERN].ToString();
+                            cbxDayOff.Text = row[ASSIGNSHEET_DAYOFF].ToString();
+                        }
+
+                    }
+                    catch (EntryPointNotFoundException eEx)
+                    {
+                        MessageBox.Show("Student does not seem to do this subject.");
+                    }
+                    catch (ArgumentOutOfRangeException aEx)
+                    {
+                        MessageBox.Show("This student does not exist in records.");
+                    }
+                    catch (NullReferenceException nEx)
+                    {
+                        MessageBox.Show("Please make sure you have inputted the right barcode and subject "
+                            + "for the student you wish to assign work to.");
                     }
 
+                    updateData();
+                    txtBarcode.Clear();
                 }
-                catch (EntryPointNotFoundException eEx)
-                {
-                    MessageBox.Show("Student does not seem to do this subject.");
-                }
-                catch (ArgumentOutOfRangeException aEx)
-                {
-                    MessageBox.Show("This student does not exist in records.");
-                }
-                catch (NullReferenceException nEx)
-                {
-                    MessageBox.Show("Please make sure you have inputted the right barcode and subject " 
-                        + "for the student you wish to assign work to.");
-                }
-
-                updateData();
-                txtBarcode.Clear();
-
             }
         }
 
@@ -337,7 +400,7 @@ namespace KumIn_WPF
 
             string[] name = lblName.Content.ToString().Split(' ');
             int studentRowNum = assignConnection.getRowNum(DATABASE_SHEET, DATABASE_SHEET_RECORD
-    + "!F1:F", name[0], DATABASE_SHEET_RECORD + "!H1:H", name[1]);
+                + "!F1:F", name[0], DATABASE_SHEET_RECORD + "!H1:H", name[1]);
 
             string barcode = assignConnection.get(DATABASE_SHEET
                 , DATABASE_SHEET_RECORD + "!D" + studentRowNum.ToString())[0][0].ToString();
