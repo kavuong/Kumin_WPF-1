@@ -59,6 +59,9 @@ namespace KumIn_WPF
 
         private void btnSendEmails_Click(object sender, RoutedEventArgs e)
         {
+            int dateRowNum;
+            string date;
+
             for (int i = 0; i < emailTable.Rows.Count; i++)
             {
                 CheckBox outBox = dgdEmails.Columns[4].GetCellContent(dgdEmails.Items[i]) as CheckBox;
@@ -71,8 +74,13 @@ namespace KumIn_WPF
 
             }
 
-            int dateRowNum = emailConnection.getRowNum(ATTENDANCE_SHEET
-                , ATTENDANCE_SHEET_RECORD + "!A1:A", dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy"));
+            if (dpkDate.SelectedDate.Value == null)
+                date = DateTime.Now.ToString("MM/dd/yyyy");
+            else
+                date = dpkDate.SelectedDate.Value.ToString("MM/dd/yyyy");
+
+            dateRowNum = emailConnection.getRowNum(ATTENDANCE_SHEET
+                        , ATTENDANCE_SHEET_RECORD + "!A1:A", date);
             List<Object> processed = new List<object> { "Processed" };
 
 
@@ -99,7 +107,7 @@ namespace KumIn_WPF
                 mail.From = new MailAddress("kumonsrn@gmail.com");
                 mail.To.Add(email); // reg email
                 mail.Subject = "Kumon HW notification";
-                mail.Body = "Dear KUMON Parents,\nYour child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
+                mail.Body = "Dear KUMON Parents,\n\nYour child, " + drv["FirstName"].ToString() + " " + drv["LastName"].ToString() +
                 ", attended center session today and turned in " + drv["#Completed"].ToString() +
                 " assignment(s). We are still missing " + drv["#Missing"].ToString() +
                 " of his/her assignment(s).\n\nPer " +
@@ -113,7 +121,7 @@ namespace KumIn_WPF
                 SmtpServer.EnableSsl = true;
 
                 SmtpServer.Send(mail);
-                MessageBox.Show("HW Email Sent", "Success");
+                // DEBUG: MessageBox.Show("HW Email Sent", "Success");
 
             }
             catch (Exception ex)

@@ -25,9 +25,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Mail;
 
-// TRY CATCH STATEMENTS
-// IF CONDITIONAL YES (notifcations)
-// Change font # completed column
+
 namespace KumIn_WPF
 {
     /// <summary>
@@ -63,14 +61,20 @@ namespace KumIn_WPF
         public const int TEMPSHEET_FIRSTNAME = 1;
         public const int TEMPSHEET_LASTNAME = 0;
         public const int TEMPSHEET_BARCODE = 2;
+        public const int TEMPSHEET_PHONE1 = 4;
+        public const int TEMPSHEET_CARRIER1 = 5;
+        public const int TEMPSHEET_PHONE2 = 6;
+        public const int TEMPSHEET_CARRIER2 = 7;
         public const int TEMPSHEET_INTIME = 11;
         public const int TEMPSHEET_SUBJECTS = 12;
         public const int TEMPSHEET_LASTDAY = 8;
         public const int TEMPSHEET_COMPLETED = 9;
         public const int TEMPSHEET_MISSING = 10;
+        public const int TEMPSHEET_OUT1_VERIF = 13;
+        public const int TEMPSHEET_OUT2_VERIF = 14;
 
         public const int CONFIRMATION_INPUT = 3;
-        public const int TEMPSHEET_COLUMNS = 13;
+        public const int TEMPSHEET_COLUMNS = 15;
 
         public const int DATABASE_SUBJECTS = 2;
         public const int DATABASE_BARCODE = 3;
@@ -114,6 +118,7 @@ namespace KumIn_WPF
                 dummyTable.Columns.Add("#Missing");
                 dummyTable.Columns.Add("Barcode");
                 dummyTable.Columns.Add("#Subjects");
+                dummyTable.Columns.Add("OutEmail", typeof(bool));
 
                 TimeLabel = timeNow.ToString("f");
 
@@ -133,6 +138,8 @@ namespace KumIn_WPF
                 }
 
                 this.dgdListing.CellEditEnding += new EventHandler<DataGridCellEditEndingEventArgs>(dgdListing_CellEditEnding);
+                this.Show();
+                myTimer_Tick(new int(), new int());
             }
             catch(System.Net.Http.HttpRequestException ex)
             {
@@ -150,25 +157,30 @@ namespace KumIn_WPF
         //
         private void dgdListing_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            int rowIndex = ((DataGrid)sender).ItemContainerGenerator.IndexFromContainer(e.Row);
-            string text = ((TextBox)e.EditingElement).Text;
-            int attRowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD 
-                + "!C1:C", dummyTable.Rows[rowIndex]["Barcode"].ToString());
-            int assRowNum = kuminConnection.getRowNum(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD
-                + "!D1:D", dummyTable.Rows[rowIndex]["Barcode"].ToString());
-            
+            if (e.EditingElement is TextBox)
+            {
+                int rowIndex = ((DataGrid)sender).ItemContainerGenerator.IndexFromContainer(e.Row);
+                string text = ((TextBox)e.EditingElement).Text;
+                int attRowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD
+                    + "!C1:C", dummyTable.Rows[rowIndex]["Barcode"].ToString());
+                int assRowNum = kuminConnection.getRowNum(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD
+                    + "!D1:D", dummyTable.Rows[rowIndex]["Barcode"].ToString());
 
-            if (e.Column.SortMemberPath.Equals("#Completed"))
-            {
-                List<Object> completed = new List<object>() { text };
-                kuminConnection.update(completed, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!J" + attRowNum.ToString());
-                kuminConnection.update(completed, ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!F" + assRowNum.ToString());
-            }
-            else if (e.Column.SortMemberPath.Equals("#Missing"))
-            {
-                List<Object> missing = new List<object>() { text };
-                kuminConnection.update(missing, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!K" + attRowNum.ToString());
-                kuminConnection.update(missing, ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!G" + assRowNum.ToString());
+
+                if (e.Column.SortMemberPath.Equals("#Completed"))
+                {
+                    List<Object> completed = new List<object>() { text };
+                    kuminConnection.update(completed, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!J" + attRowNum.ToString());
+                    kuminConnection.update(completed, ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!F" + assRowNum.ToString());
+                }
+                else if (e.Column.SortMemberPath.Equals("#Missing"))
+                {
+                    List<Object> missing = new List<object>() { text };
+                    kuminConnection.update(missing, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!K" + attRowNum.ToString());
+                    kuminConnection.update(missing, ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!G" + assRowNum.ToString());
+                }
+
+                txtUpdate.Focus();
             }
         }
 
@@ -222,19 +234,36 @@ namespace KumIn_WPF
                         dummyRow["#Completed"] = studentIn[TEMPSHEET_COMPLETED];
                         dummyRow["#Missing"] = studentIn[TEMPSHEET_MISSING];
 
+                        if (studentIn[TEMPSHEET_OUT1_VERIF].ToString() == "YES"
+                            || studentIn[TEMPSHEET_OUT2_VERIF].ToString() == "YES")
+                            dummyRow["OutEmail"] = true;
+                        else
+                            dummyRow["OutEmail"] = false;
+
                         dgdListing.ItemsSource = dummyTable.DefaultView;
                         dummyTable.Rows.Add(dummyRow);
                         dummyTable.DefaultView.Sort = "Duration DESC";
                     }
                 }
             }
-
         }
+
+
+
+
+
+
 
         private void txtUpdate_TextChanged(object sender, TextChangedEventArgs e)
         {
 
         }
+
+
+
+
+
+
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -297,10 +326,6 @@ namespace KumIn_WPF
         {
         }
 
-        private void onHomeworkChecked(object sender, RoutedEventArgs e)
-        {
-            //sendHomeworkEmail();
-        }
 
 
 
@@ -310,7 +335,35 @@ namespace KumIn_WPF
 
         private void onOutChecked(object sender, RoutedEventArgs e)
         {
-            sendOutEmail();
+            if (dgdListing.SelectedIndex != -1)
+            {
+                int rowIndex = dgdListing.SelectedIndex;
+                int tempRowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!C1:C"
+                    , dummyTable.Rows[rowIndex]["Barcode"].ToString());
+
+                kuminConnection.update(new List<object> { "YES", "YES" }, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD
+                    + "!N" + tempRowNum.ToString() + ":O" + tempRowNum.ToString());
+            }
+
+        }
+
+
+
+
+
+
+        private void onOutUnchecked(object sender, RoutedEventArgs e)
+        {
+            if (dgdListing.SelectedIndex != -1)
+            {
+                int rowIndex = dgdListing.SelectedIndex;
+                int tempRowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD + "!C1:C"
+                    , dummyTable.Rows[rowIndex]["Barcode"].ToString());
+
+                kuminConnection.update(new List<object> { "NO", "NO" }, ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD
+                    + "!N" + tempRowNum.ToString() + ":O" + tempRowNum.ToString());
+            }
+
         }
 
 
@@ -400,7 +453,7 @@ namespace KumIn_WPF
             for (int i = 0; i < TEMPSHEET_COLUMNS; i++)
                 deleteRow.Add("");
 
-            string deleteStudentRange = ATTENDANCE_SHEET_TEMP_RECORD + "!A" + rowNum.ToString() + ":M" + rowNum.ToString();
+            string deleteStudentRange = ATTENDANCE_SHEET_TEMP_RECORD + "!A" + rowNum.ToString() + ":O" + rowNum.ToString();
             kuminConnection.update(deleteRow, ATTENDANCE_SHEET, deleteStudentRange);
 
             // Transfer row to permanent record
@@ -410,7 +463,8 @@ namespace KumIn_WPF
 
             txtUpdate.Focus();
             myTimer_Tick(this, this);
-            MessageBox.Show("Goodbye!");
+            MessageBox.Show(signOutStudent[0][1] + " " + signOutStudent[0][0] 
+                + " is now signed out. Goodbye!");
         }
 
 
@@ -420,15 +474,26 @@ namespace KumIn_WPF
         
         private void signOut(object sender, RoutedEventArgs e)
         {
-            //int rowIndex = dgdListing.ItemContainerGenerator
-            //    .IndexFromContainer((DataGridRow)((FrameworkElement)sender).DataContext);
-            int rowIndex = dgdListing.SelectedIndex;
-            string barcode = dummyTable.Rows[rowIndex]["Barcode"].ToString();
+            try
+            {
+                //int rowIndex = dgdListing.ItemContainerGenerator
+                //    .IndexFromContainer((DataGridRow)((FrameworkElement)sender).DataContext);
+                int rowIndex = dgdListing.SelectedIndex;
+                string barcode = dummyTable.Rows[rowIndex]["Barcode"].ToString();
+                CheckBox outBox = dgdListing.Columns[8].GetCellContent(dgdListing.Items[rowIndex]) as CheckBox;
 
-            signOut(new string[] { barcode });
-            myTimer_Tick(this, this);
-            MessageBox.Show(dummyTable.Rows[rowIndex]["FirstName"] + " " + dummyTable.Rows[rowIndex]["LastName"] + 
-                " is now signed out. Goodbye!");
+                if (outBox.IsChecked.Value)
+                    sendOutEmail(dgdListing.SelectedItem as DataRowView);
+
+                signOut(new string[] { barcode });
+
+                txtUpdate.Focus();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Something wrong happened here. Maybe double clicked the button?\n\n"
+                    + "Admin info: " + ex.Message);
+            }
         }
 
 
@@ -475,6 +540,8 @@ namespace KumIn_WPF
             string studentRowRange;
             int rowNum = 0;
             int assignmentRecordRowNum = 0;
+            string isPhone1 = "";
+            string isPhone2 = "";
             IList<IList<Object>> databaseValues = kuminConnection.get(DATABASE_SHEET, databaseRange);
             IList<IList<Object>> assignmentRecordValues = kuminConnection.get(ASSIGNMENT_RECORD_SHEET, ASSIGNMENT_RECORD + "!B1:C");
 
@@ -509,10 +576,21 @@ namespace KumIn_WPF
                 phone2 = row[DATABASE_PHONE2].ToString();
                 carrier2 = row[DATABASE_CARRIER2].ToString();
                 subjectsArray = (row[DATABASE_SUBJECTS].ToString()).Split(',');
+
                 if (subjectsArray.Length == ONE_SUBJECT_LENGTH)
                     subjects = ONE_SUBJECT_LENGTH;
                 else if (subjectsArray.Length == TWO_SUBJECT_LENGTH)
                     subjects = TWO_SUBJECT_LENGTH;
+
+                if (row[DATABASE_PICKUP1_VERIF].ToString() == "YES")
+                    isPhone1 = "YES";
+                else
+                    isPhone1 = "NO";
+
+                if (row[DATABASE_PICKUP2_VERIF].ToString() == "YES")
+                    isPhone2 = "YES";
+                else
+                    isPhone2 = "NO";
 
 
                 studentRowList.Add(lastName);
@@ -528,6 +606,8 @@ namespace KumIn_WPF
                 studentRowList.Add("");                     // Missing
                 studentRowList.Add(DateTime.Now.ToString("t"));
                 studentRowList.Add(subjects.ToString());
+                studentRowList.Add(isPhone1);
+                studentRowList.Add(isPhone2);
             }
 
             // Find paste row num
@@ -566,6 +646,11 @@ namespace KumIn_WPF
                 dummyRow["LastDay"] = lastDayIn;
                 dummyRow["Barcode"] = barcode;
                 dummyRow["#Subjects"] = subjects.ToString();
+                if (isPhone1 == "YES"
+                            || isPhone2 == "YES")
+                    dummyRow["OutEmail"] = true;
+                else
+                    dummyRow["OutEmail"] = false;
             }
             dgdListing.ItemsSource = dummyTable.DefaultView;
             dummyTable.Rows.Add(dummyRow);
@@ -583,7 +668,7 @@ namespace KumIn_WPF
 
 
 
-        private void sendOutEmail()
+        private void sendOutEmail(DataRowView drv)
         {
             try
             {
@@ -598,34 +683,36 @@ namespace KumIn_WPF
                 string carrier2 = "";
                 string carrierString1 = "";
                 string carrierString2 = "";
+                string firstName = drv["FirstName"].ToString();
+                string lastName = drv["LastName"].ToString();
                 int rowNum = 1;
+                string barcode = (drv["Barcode"]).ToString();
 
-                DataRowView drv = (DataRowView)dgdListing.SelectedItem;
-                string firstName = (drv["FirstName"]).ToString();
-                string lastName = (drv["LastName"]).ToString();
+                rowNum = kuminConnection.getRowNum(ATTENDANCE_SHEET, ATTENDANCE_SHEET_TEMP_RECORD 
+                    + "!B1:B", firstName, ATTENDANCE_SHEET_TEMP_RECORD + "!A1:A", lastName);
+                IList<IList<Object>>values = kuminConnection.get(ATTENDANCE_SHEET
+                    , ATTENDANCE_SHEET_TEMP_RECORD + "!A" + rowNum.ToString() +  ":AAA" + rowNum.ToString());
 
-                
-                IList<IList<Object>>values = kuminConnection.get(DATABASE_SHEET, DATABASE_SHEET_RECORD + "!A1:Z");
-                rowNum = kuminConnection.getRowNum(DATABASE_SHEET, DATABASE_SHEET_RECORD +
-                "!F1:F", firstName, DATABASE_SHEET_RECORD + "H1:H", lastName);
-
-                var studentRow = values[rowNum - 1];
+                var studentRow = values[0];
 
                 
-                phone1 = studentRow[DATABASE_PHONE1].ToString();
-                carrier1 = studentRow[DATABASE_CARRIER1].ToString();
-                pickUpVerif1 = studentRow[DATABASE_PICKUP1_VERIF].ToString();
-                pickUpVerif2 = studentRow[DATABASE_PICKUP2_VERIF].ToString();
-                phone2 = studentRow[DATABASE_PHONE2].ToString();
-                carrier2 = studentRow[DATABASE_CARRIER2].ToString();
+                phone1 = studentRow[TEMPSHEET_PHONE1].ToString();
+                carrier1 = studentRow[TEMPSHEET_CARRIER1].ToString();
+                phone2 = studentRow[TEMPSHEET_PHONE2].ToString();
+                carrier2 = studentRow[TEMPSHEET_CARRIER2].ToString();
 
                 carrierString1 = returnCarrierString(carrier1);
                 carrierString2 = returnCarrierString(carrier2);
 
-                if (phone1 != null && carrierString1 != null && pickUpVerif1.ToUpper() == "YES")
+
+                pickUpVerif1 = studentRow[TEMPSHEET_OUT1_VERIF].ToString();
+                pickUpVerif2 = studentRow[TEMPSHEET_OUT2_VERIF].ToString();
+
+                if (phone1 != "" && carrierString1 != "" && pickUpVerif1 == "YES")
                 {
                     mail1.From = new MailAddress("kumonsrn@gmail.com");
                     mail1.To.Add(phone1 + carrierString1); //phone
+                    mail1.CC.Add("kumonsrn@gmail.com");
                     mail1.Subject = "Kumon Reminder";
                     mail1.Body = "Your child - " + firstName + " " + lastName + " - is ready to be picked up";
                     SmtpServer.Port = 587;
@@ -635,10 +722,11 @@ namespace KumIn_WPF
                     SmtpServer.Send(mail1);
                 }
 
-                if (phone2 != "" && carrierString2 != "" && pickUpVerif2.ToUpper() == "YES")
+                if (phone2 != "" && carrierString2 != "" && pickUpVerif2 == "YES")
                 {
                     mail2.From = new MailAddress("kumonsrn@gmail.com");
                     mail2.To.Add(phone2 + carrierString2); //phone
+                    mail2.CC.Add("kumonsrn@gmail.com");
                     mail2.Subject = "Kumon Reminder";
                     mail2.Body = "Your child - " + firstName + " " + lastName + " - is ready to be picked up";
                     SmtpServer.Port = 587;
@@ -647,15 +735,18 @@ namespace KumIn_WPF
                     SmtpServer.EnableSsl = true;
                     SmtpServer.Send(mail2);
                 }               
-                MessageBox.Show("Text(s) sent","Success");                
+                MessageBox.Show("Text(s) sent to the parents of " + firstName + " " + lastName + "." 
+                    ,"Success");                
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "Error");
+                MessageBox.Show("Texts not sent, perhaps parent is not signed up?\n\nAdmin details: " 
+                    + ex.Message, "Error");
             }
         }              
 
-        private void btnCMSManip_Click(object sender, RoutedEventArgs e) {
+        private void btnCMSManip_Click(object sender, RoutedEventArgs e)
+        {
             CMSManip myCMSManip = new CMSManip();
         }
 

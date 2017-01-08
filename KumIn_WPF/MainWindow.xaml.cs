@@ -28,7 +28,6 @@ namespace KumIn_WPF
         private void button_Click(object sender, RoutedEventArgs e)
         {
             Primary myPrimary = new Primary();
-            myPrimary.Show();
             this.Close();
         }
     }

@@ -54,10 +54,11 @@
                     <DataGridTextColumn Binding="{Binding #Completed}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Completed"/>
                     <DataGridTextColumn Binding="{Binding #Missing}" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Missing"/>
                     <DataGridTextColumn Binding="{Binding #Subjects}" IsReadOnly="True" ClipboardContentBinding="{x:Null}" FontFamily="Lucida Sans" FontSize="16" Header="# Subjects" />
-                    <DataGridCheckBoxColumn Binding="{x:Null}"  ClipboardContentBinding="{x:Null}" Header="Out Email?">
+                    <DataGridCheckBoxColumn Binding="{Binding OutEmail}"  ClipboardContentBinding="{x:Null}" Header="Out Email?">
                         <DataGridCheckBoxColumn.CellStyle>
                             <Style>
                                 <EventSetter Event="CheckBox.Checked" Handler="onOutChecked"/>
+                                <EventSetter Event="CheckBox.Unchecked" Handler="onOutUnchecked"/>
                             </Style>
                         </DataGridCheckBoxColumn.CellStyle>
                     </DataGridCheckBoxColumn>
