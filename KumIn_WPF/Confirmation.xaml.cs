@@ -20,8 +20,8 @@ namespace KumIn_WPF
     public partial class Confirmation : Window
     {
         SpreadsheetConnection kuminConnection = new SpreadsheetConnection();
-        public const string DATABASE_SHEET = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";
-        public const string DATABASE_SHEET_RECORD = "DB-Master";
+        public const string DATABASE_SHEET = "1Gav1wmBzJ9xwIwlLxRkQHy32d2pzOuJ6CCO_3jZMJDY";
+        public const string DATABASE_SHEET_RECORD = "Database";
 
         public const int DATABASE_FIRST_NAME = 5;
         public const int DATABASE_LAST_NAME = 7;

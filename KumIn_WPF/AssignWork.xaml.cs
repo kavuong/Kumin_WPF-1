@@ -38,11 +38,11 @@ namespace KumIn_WPF
         private string subject = "";
 
         // Constants
-        public const string ASSIGNMENT_SHEET = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
-        public const string DATABASE_SHEET = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";
+        public const string ASSIGNMENT_SHEET = "1_i3YFC0DT44WbIqPMfBFv74p1WXi5NBMDwetqUPYoqY";
+        public const string DATABASE_SHEET = "1Gav1wmBzJ9xwIwlLxRkQHy32d2pzOuJ6CCO_3jZMJDY";
 
-        public const string ASSIGNMENT_SHEET_RECORD = "Test";
-        public const string DATABASE_SHEET_RECORD = "DB-Master";
+        public const string ASSIGNMENT_SHEET_RECORD = "Record";
+        public const string DATABASE_SHEET_RECORD = "Database";
 
         public const int DATABASE_BARCODE = 3;
 

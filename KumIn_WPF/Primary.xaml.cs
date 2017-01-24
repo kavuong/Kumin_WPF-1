@@ -42,14 +42,14 @@ namespace KumIn_WPF
 
         // Constants
         public const int TIMER_CYCLE = 15;                                      // seconds
-        public const string ATTENDANCE_SHEET = "14j-XmVSs87CnsLX-TteOeIaAPak2G6_UTX6nU06kNWk";
-        public const string DATABASE_SHEET = "1Lxn9qUxUbNWt3cI70CuTEIxCfgpxjAlZPd6ARph4oCM";
-        public const string ASSIGNMENT_RECORD_SHEET = "1rQvp2rNVHpCyVaOCgnDJQo_5Hzvq6217DfTEs1czm9s";
+        public const string ATTENDANCE_SHEET = "1PQzK4uaL5k7V-P9W7eUNxpriCz_WHSoEVuEp-wek5ys";
+        public const string DATABASE_SHEET = "1Gav1wmBzJ9xwIwlLxRkQHy32d2pzOuJ6CCO_3jZMJDY";
+        public const string ASSIGNMENT_RECORD_SHEET = "1_i3YFC0DT44WbIqPMfBFv74p1WXi5NBMDwetqUPYoqY";
 
-        public const string ATTENDANCE_SHEET_PERM_RECORD = "Record";
-        public const string ATTENDANCE_SHEET_TEMP_RECORD = "Sheet1";
-        public const string DATABASE_SHEET_RECORD = "DB-Master";
-        public const string ASSIGNMENT_RECORD = "Test";
+        public const string ATTENDANCE_SHEET_PERM_RECORD = "DayAttendance";
+        public const string ATTENDANCE_SHEET_TEMP_RECORD = "StudentsIn";
+        public const string DATABASE_SHEET_RECORD = "Database";
+        public const string ASSIGNMENT_RECORD = "Record";
 
 
         // Column Indexes
